@@ -64,6 +64,12 @@
   </style>
   
   <script>
+  import groupService from '../services/groupService';
+  import IconReceipt from '../assets/images/icons/receipt-text.svg';
+  import IconEnvelope from '../assets/images/icons/envelope-solid.svg';
+  import IconMoney from '../assets/images/icons/money-bill-wave-solid.svg';
+  import IconUser from '../assets/images/icons/user-solid.svg';
+
   export default {
     name: 'Dashboard',
     data() {
@@ -89,44 +95,12 @@
       async fetchDashboardData() {
         this.isLoading = true;
         try {
-          // Aquí implementarás las llamadas a la API cuando la tengas
-          // Por ahora, usamos datos de ejemplo
-          setTimeout(() => {
-            this.groups = [
-              {
-                id: 1,
-                name: 'Viaje a Barcelona',
-                description: 'Gastos del viaje de fin de semana',
-                balance: 45.50
-              },
-              {
-                id: 2,
-                name: 'Piso Compartido',
-                description: 'Gastos mensuales del apartamento',
-                balance: -23.75
-              }
-            ];
-            
-            this.activities = [
-              {
-                type: 'expense',
-                text: 'Carlos añadió un gasto de 25€ en "Viaje a Barcelona"',
-                date: '2025-02-24T15:30:00'
-              },
-              {
-                type: 'group',
-                text: 'Te has unido al grupo "Piso Compartido"',
-                date: '2025-02-22T10:15:00'
-              }
-            ];
-            
-            this.recentExpenses = [
-              { id: 1, description: 'Cena', amount: 45.20, date: '2025-02-24T20:00:00' },
-              { id: 2, description: 'Taxi', amount: 15.50, date: '2025-02-24T22:30:00' }
-            ];
-            
-            this.isLoading = false;
-          }, 1000);
+
+          const groupsResponse = await groupService.getGroups();
+          this.groups = groupsResponse.data;
+  
+          this.isLoading = false;
+          
         } catch (error) {
           console.error('Error al cargar datos del dashboard', error);
           this.isLoading = false;
@@ -148,10 +122,10 @@
       },
       getActivityIcon(type) {
         const icons = {
-          expense: 'fas fa-receipt',
-          group: 'fas fa-users',
-          payment: 'fas fa-money-bill-wave',
-          invitation: 'fas fa-envelope'
+          expense: IconReceipt,
+          group: IconUser,
+          payment: IconMoney,
+          invitation: IconEnvelope
         };
         return icons[type] || 'fas fa-info-circle';
       },

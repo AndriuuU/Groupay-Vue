@@ -243,56 +243,20 @@ export default {
       this.isLoading = true;
       
       try {
-        // Aquí implementarías las llamadas a la API cuando la tengas
-        // Por ahora, usamos datos de ejemplo
-        setTimeout(() => {
-          this.group = {
-            id: groupId,
-            name: 'Viaje a Barcelona',
-            description: 'Gastos del viaje de fin de semana',
-            category: 'trip',
-            createdBy: 1,
-            members: [
-              { id: 1, name: 'Tú' },
-              { id: 2, name: 'Carlos' },
-              { id: 3, name: 'Elena' }
-            ]
-          };
-          
-          this.expenses = [
-            {
-              id: 1,
-              description: 'Cena en restaurante',
-              amount: 120,
-              date: '2025-02-24',
-              paidBy: 1,
-              participants: [1, 2, 3],
-              category: 'food'
-            },
-            {
-              id: 2,
-              description: 'Entradas museo',
-              amount: 45,
-              date: '2025-02-25',
-              paidBy: 2,
-              participants: [1, 2, 3],
-              category: 'entertainment'
-            }
-          ];
-          
-          this.balances = [
-            { userId: 1, userName: 'Tú', amount: 25 },
-            { userId: 2, userName: 'Carlos', amount: -15 },
-            { userId: 3, userName: 'Elena', amount: -10 }
-          ];
-          
-          this.settlements = [
-            { from: 'Carlos', to: 'Tú', amount: 15 },
-            { from: 'Elena', to: 'Tú', amount: 10 }
-          ];
-          
-          this.isLoading = false;
-        }, 1000);
+        // Obtener datos del grupo
+        const groupResponse = await groupService.getGroup(groupId);
+        this.group = groupResponse.data;
+        
+        // Obtener gastos del grupo
+        const expensesResponse = await expenseService.getGroupExpenses(groupId);
+        this.expenses = expensesResponse.data;
+        
+        // Obtener balances del grupo
+        const balancesResponse = await groupService.getGroupBalances(groupId);
+        this.balances = balancesResponse.data.balances;
+        this.settlements = balancesResponse.data.settlements;
+        
+        this.isLoading = false;
       } catch (error) {
         console.error('Error al cargar datos del grupo', error);
         this.isLoading = false;
@@ -300,7 +264,6 @@ export default {
     },
     async addExpense(expenseData) {
       try {
-        // Aquí implementarías la llamada a la API cuando la tengas
         // const response = await expenseService.createExpense(this.group.id, expenseData);
         
         // Simulación
@@ -325,7 +288,6 @@ export default {
     },
     async updateExpense(expenseData) {
       try {
-        // Aquí implementarías la llamada a la API cuando la tengas
         // const response = await expenseService.updateExpense(expenseData.id, expenseData);
         
         // Simulación
@@ -345,7 +307,6 @@ export default {
     },
     async deleteExpense(expenseId) {
       try {
-        // Aquí implementarías la llamada a la API cuando la tengas
         // await expenseService.deleteExpense(expenseId);
         
         // Simulación
@@ -360,7 +321,6 @@ export default {
     async fetchBalances() {
       this.isLoadingBalances = true;
       try {
-        // Aquí implementarías la llamada a la API cuando la tengas
         // const response = await groupService.getGroupBalances(this.group.id);
         // this.balances = response.data.balances;
         // this.settlements = response.data.settlements;
@@ -380,14 +340,8 @@ export default {
       
       this.isAddingMember = true;
       try {
-        // Aquí implementarías la llamada a la API cuando la tengas
-        // const response = await groupService.addGroupMember(this.group.id, { email: this.newMemberEmail });
-        
-        // Simulación
-        const newMember = {
-          id: this.group.members.length + 10, // ID arbitrario para simulación
-          name: this.newMemberEmail.split('@')[0] // Usar parte del email como nombre
-        };
+        const response = await groupService.addGroupMember(this.group.id, { email: this.newMemberEmail });
+
         
         this.group.members.push(newMember);
         this.newMemberEmail = '';
@@ -406,22 +360,16 @@ export default {
       if (!confirm('¿Estás seguro de que quieres eliminar a este miembro del grupo?')) return;
       
       try {
-        // Aquí implementarías la llamada a la API cuando la tengas
-        // await groupService.removeGroupMember(this.group.id, memberId);
+        await groupService.removeGroupMember(this.group.id, memberId);
         
-        // Simulación
-        this.group.members = this.group.members.filter(m => m.id !== memberId);
       } catch (error) {
         console.error('Error al eliminar miembro', error);
       }
     },
     async updateGroup(groupData) {
       try {
-        // Aquí implementarías la llamada a la API cuando la tengas
-        // const response = await groupService.updateGroup(this.group.id, groupData);
-        
-        // Simulación
-        this.group = { ...this.group, ...groupData };
+        const response = await groupService.updateGroup(this.group.id, groupData);
+       
         this.showGroupSettings = false;
       } catch (error) {
         console.error('Error al actualizar grupo', error);
@@ -434,8 +382,7 @@ export default {
     },
     async deleteGroup() {
       try {
-        // Aquí implementarías la llamada a la API cuando la tengas
-        // await groupService.deleteGroup(this.group.id);
+        await groupService.deleteGroup(this.group.id);
         
         // Simulación
         this.$router.push('/groups');

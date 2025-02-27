@@ -7,6 +7,7 @@ import Register from '@/views/Register.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import GroupDetail from '@/views/GroupDetail.vue';
 import NotFound from '@/views/NotFound.vue';
+import GroupList from '../components/groups/GroupList.vue';
 
 const routes = [
   {
@@ -37,6 +38,12 @@ const routes = [
     path: '/groups/:id',
     name: 'group-detail',
     component: GroupDetail,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/groups',
+    name: 'group-list',
+    component: GroupList,
     meta: { requiresAuth: true }
   },
   {

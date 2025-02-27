@@ -68,12 +68,9 @@
       async fetchGroups() {
         this.isLoading = true;
         try {
-          // Aquí utilizarías tu servicio de grupos
           const response = await groupService.getGroups();
           this.groups = response.data;
-          
-          
-          
+          this.isLoading = false;
         } catch (error) {
           this.error = 'Error al cargar los grupos';
           this.isLoading = false;
