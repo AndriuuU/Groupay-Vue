@@ -2,34 +2,34 @@ import api from './api';
 
 export default {
   login(credentials) {
-    return api.post('/auth/login', credentials);
+    return api.post('/login', credentials);
   },
   
   register(userData) {
-    return api.post('/auth/register', userData);
+    return api.post('/register', userData);
   },
   
   logout() {
-    return api.post('/auth/logout');
+    return api.post('/logout');
   },
   
   getCurrentUser() {
-    return api.get('/auth/user');
+    return api.get('/user');
   },
   
   loginWithGoogle(token) {
-    return api.post('/auth/google', { token });
+    return api.post('/google', { token });
   },
   
   loginWithFacebook(token) {
-    return api.post('/auth/facebook', { token });
+    return api.post('/facebook', { token });
   },
   
   updateProfile(userData) {
-    return api.put('/auth/profile', userData);
+    return api.put('/profile', userData);
   },
   
   changePassword(passwordData) {
-    return api.put('/auth/password', passwordData);
+    return api.put('/password', passwordData);
   }
 };

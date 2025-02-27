@@ -1,0 +1,86 @@
+<template>
+    <div class="group-form">
+      <h3>{{ isEditing ? 'Editar Grupo' : 'Crear Nuevo Grupo' }}</h3>
+      <div v-if="error" class="alert alert-danger">{{ error }}</div>
+      <form @submit.prevent="submitForm">
+        <div class="form-group">
+          <label for="name">Nombre del Grupo</label>
+          <input type="text" id="name" v-model="form.name" required>
+        </div>
+        <div class="form-group">
+          <label for="description">Descripción</label>
+          <textarea id="description" v-model="form.description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="category">Categoría</label>
+          <select id="category" v-model="form.category">
+            <option value="trip">Viaje</option>
+            <option value="home">Hogar</option>
+            <option value="event">Evento</option>
+            <option value="project">Proyecto</option>
+            <option value="other">Otro</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" :disabled="isLoading">
+            {{ isLoading ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Crear Grupo') }}
+          </button>
+          <button type="button" class="btn btn-secondary" @click="$emit('cancel')">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </template>
+  
+  <script>
+  export default {
+    name: 'GroupForm',
+    props: {
+      group: {
+        type: Object,
+        default: null
+      }
+    },
+    data() {
+      return {
+        form: {
+          name: '',
+          description: '',
+          category: 'other'
+        },
+        isLoading: false,
+        error: null
+      };
+    },
+    computed: {
+      isEditing() {
+        return !!this.group;
+      }
+    },
+    created() {
+      if (this.group) {
+        this.form = { ...this.group };
+      }
+    },
+    methods: {
+      submitForm() {
+        if (!this.form.name) {
+          this.error = 'El nombre del grupo es obligatorio';
+          return;
+        }
+        
+        this.isLoading = true;
+        this.error = null;
+        
+        try {
+          this.$emit('submit', this.form);
+        } catch (error) {
+          this.error = 'Error al guardar el grupo';
+          this.isLoading = false;
+        }
+      }
+    }
+  };
+  </script>
+  
