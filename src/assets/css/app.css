@@ -1,28 +1,31 @@
+/* src/assets/css/app.css */
 .app-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  .app-header {
-    background-color: var(--primary-color);
-    color: var(--white);
-    padding: 15px 20px;
-    box-shadow: var(--box-shadow);
-  }
-  
-  .app-content {
-    flex: 1;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-  }
-  
-  .app-footer {
-    background-color: var(--white);
-    padding: 20px;
-    text-align: center;
-    border-top: 1px solid var(--border-color);
-  }
-  
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  transition: background-color var(--transition-speed);
+}
+
+.app-header {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 15px 20px;
+  box-shadow: var(--box-shadow);
+}
+
+.app-content {
+  flex: 1;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.app-footer {
+  background-color: var(--card-bg);
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-color);
+}

@@ -69,40 +69,11 @@
         this.isLoading = true;
         try {
           // Aquí utilizarías tu servicio de grupos
-          // const response = await groupService.getGroups();
-          // this.groups = response.data;
+          const response = await groupService.getGroups();
+          this.groups = response.data;
           
-          // Datos de ejemplo mientras no tienes la API
-          setTimeout(() => {
-            this.groups = [
-              {
-                id: 1,
-                name: 'Viaje a Barcelona',
-                description: 'Gastos del viaje de fin de semana',
-                category: 'trip',
-                members: [
-                  { id: 1, name: 'Ana' },
-                  { id: 2, name: 'Carlos' },
-                  { id: 3, name: 'Elena' }
-                ],
-                balance: 45.50,
-                createdAt: '2025-02-20T10:30:00'
-              },
-              {
-                id: 2,
-                name: 'Piso Compartido',
-                description: 'Gastos mensuales del apartamento',
-                category: 'home',
-                members: [
-                  { id: 1, name: 'Ana' },
-                  { id: 4, name: 'Miguel' }
-                ],
-                balance: -23.75,
-                createdAt: '2025-01-15T08:45:00'
-              }
-            ];
-            this.isLoading = false;
-          }, 1000);
+          
+          
         } catch (error) {
           this.error = 'Error al cargar los grupos';
           this.isLoading = false;
@@ -110,17 +81,9 @@
       },
       async createGroup(groupData) {
         try {
-          // const response = await groupService.createGroup(groupData);
-          // this.groups.push(response.data);
-          // Simulación
-          const newGroup = {
-            id: this.groups.length + 1,
-            ...groupData,
-            members: [{ id: 1, name: 'Tú' }],
-            balance: 0,
-            createdAt: new Date().toISOString()
-          };
-          this.groups.push(newGroup);
+          const response = await groupService.createGroup(groupData);
+          this.groups.push(response.data);
+          
           this.showCreateGroupModal = false;
         } catch (error) {
           this.error = 'Error al crear el grupo';

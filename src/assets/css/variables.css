@@ -1,26 +1,48 @@
 :root {
-    /* Colores principales */
-    --primary-color: #2ecc71;
-    --primary-dark: #27ae60;
-    --primary-light: #a9dfbf;
-    --secondary-color: #ecf0f1;
-    --text-color: #2c3e50;
-    --text-light: #7f8c8d;
-    --white: #ffffff;
-    --black: #000000;
-    --error-color: #e74c3c;
-    --success-color: #2ecc71;
-    --warning-color: #f39c12;
-    
-    /* Sombras */
-    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --box-shadow-hover: 0 6px 10px rgba(0, 0, 0, 0.15);
-    
-    /* Bordes */
-    --border-radius: 8px;
-    --border-color: #e0e0e0;
-    
-    /* Transiciones */
-    --transition-speed: 0.3s;
-  }
+  /* Tema claro (predeterminado) */
+  --primary-color: #2ecc71;
+  --primary-dark: #27ae60;
+  --primary-light: #a9dfbf;
+  --secondary-color: #ecf0f1;
+  --text-color: #2c3e50;
+  --text-light: #7f8c8d;
+  --white: #ffffff;
+  --black: #000000;
+  --error-color: #e74c3c;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --bg-color: #ffffff;
+  --card-bg: #ffffff;
+  --border-color: #e0e0e0;
   
+  /* Sombras */
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --box-shadow-hover: 0 6px 10px rgba(0, 0, 0, 0.15);
+  
+  /* Bordes */
+  --border-radius: 8px;
+  
+  /* Transiciones */
+  --transition-speed: 0.3s;
+}
+
+[data-theme="dark"] {
+  --primary-color: #2ecc71;
+  --primary-dark: #27ae60;
+  --primary-light: #1e8449;
+  --secondary-color: #2c3e50;
+  --text-color: #ecf0f1;
+  --text-light: #bdc3c7;
+  --white: #2c3e50;
+  --black: #ecf0f1;
+  --error-color: #e74c3c;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --bg-color: #1a1a1a;
+  --card-bg: #2c3e50;
+  --border-color: #34495e;
+  
+  /* Sombras */
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --box-shadow-hover: 0 6px 10px rgba(0, 0, 0, 0.4);
+}
