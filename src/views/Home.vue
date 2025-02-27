@@ -34,4 +34,7 @@
     name: 'Home'
   }
   </script>
+  <style>
+  @import '../assets/css/views/home.css';
+  </style>
   

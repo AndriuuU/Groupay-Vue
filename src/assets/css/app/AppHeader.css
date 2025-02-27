@@ -1,0 +1,84 @@
+.app-header {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 15px 20px;
+    box-shadow: var(--box-shadow);
+  }
+  
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--white);
+    text-decoration: none;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .nav-link {
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity var(--transition-speed);
+  }
+  
+  .nav-link:hover {
+    opacity: 0.8;
+  }
+  
+  .user-menu {
+    position: relative;
+  }
+  
+  .user-button {
+    background: none;
+    border: none;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+  }
+  
+  .user-menu-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    min-width: 180px;
+    z-index: 100;
+    margin-top: 5px;
+  }
+  
+  .dropdown-item {
+    display: block;
+    padding: 10px 15px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: background-color var(--transition-speed);
+  }
+  
+  .dropdown-item:hover {
+    background-color: var(--secondary-color);
+  }
+  
+  .dropdown-item.danger {
+    color: var(--error-color);
+  }
+  
+  .dropdown-item.danger:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+  }
+  

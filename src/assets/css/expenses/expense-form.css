@@ -1,0 +1,26 @@
+.expense-form {
+    padding: 10px;
+  }
+  
+  .expense-form h3 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+  }
+  
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .checkbox-item input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+  }
+  
+  .checkbox-item label {
+    margin-bottom: 0;
+    cursor: pointer;
+  }
+  
+  

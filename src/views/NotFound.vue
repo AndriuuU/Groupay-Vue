@@ -12,3 +12,7 @@
   };
   </script>
   
+  <style>
+  @import '../assets/css/views/not-found.css';
+
+  </style>

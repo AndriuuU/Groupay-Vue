@@ -1,0 +1,20 @@
+.group-form {
+    padding: 10px;
+  }
+  
+  .group-form h3 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+  }
+  
+  .danger-zone {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .danger-zone h4 {
+    color: var(--error-color);
+    margin-bottom: 15px;
+  }
+  

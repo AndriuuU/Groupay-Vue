@@ -24,3 +24,7 @@
   };
   </script>
   
+  <style scoped>
+  @import '../../assets/css/common/modal.css';
+  </style>
+  

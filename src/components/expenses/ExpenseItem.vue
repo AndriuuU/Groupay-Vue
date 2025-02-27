@@ -96,3 +96,6 @@
   };
   </script>
   
+  <style scoped>
+  @import '../../assets/css/expenses/expense-item.css';
+  </style>

@@ -72,4 +72,7 @@
     }
   };
   </script>
-  
+
+<style scoped>
+@import '../../assets/css/groups/group-item.css';
+</style>

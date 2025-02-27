@@ -1,0 +1,40 @@
+.expense-list {
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: var(--box-shadow);
+}
+
+.expense-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.expense-list-header h3 {
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.expense-filters {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-select {
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--white);
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.expense-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}

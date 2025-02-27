@@ -1,0 +1,30 @@
+.group-list {
+    padding: 20px;
+  }
+  
+  .group-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .group-list-header h2 {
+    color: var(--primary-color);
+    margin: 0;
+  }
+  
+  .groups-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  @media (min-width: 768px) {
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+    }
+  }
+  

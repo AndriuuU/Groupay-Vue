@@ -84,3 +84,7 @@
   };
   </script>
   
+  <style scoped>
+  @import '../../assets/css/groups/group-form.css';
+  </style>
+  

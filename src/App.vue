@@ -1,10 +1,26 @@
-<script setup>
-</script>
-
 <template>
-  <router-view></router-view>
+  <div class="app-container">
+    <app-header />
+    <main class="app-content">
+      <router-view />
+    </main>
+    <app-footer />
+  </div>
 </template>
 
-<style scoped>
+<script>
+import AppHeader from './components/layout/AppHeader.vue';
+import AppFooter from './components/layout/AppFooter.vue';
 
+export default {
+  name: 'App',
+  components: {
+    AppHeader,
+    AppFooter
+  }
+};
+</script>
+
+<style>
+@import './assets/css/app.css';
 </style>

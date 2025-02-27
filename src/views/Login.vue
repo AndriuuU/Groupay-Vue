@@ -22,3 +22,7 @@
   }
   </script>
   
+  <style>
+  @import '../assets/css/views/login.css';
+
+  </style>

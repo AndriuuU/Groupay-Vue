@@ -146,4 +146,8 @@
     }
   };
   </script>
+
+  <style scoped>
+  @import '../../assets/css/expenses/expense-form.css';
+  </style>
   

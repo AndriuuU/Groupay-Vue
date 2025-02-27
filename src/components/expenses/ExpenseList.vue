@@ -54,7 +54,11 @@
       ExpenseItem
     },
     props: {
-        members: {
+    expenses: {
+      type: Array,
+      default: () => []
+    },
+    members: {
       type: Array,
       default: () => []
     },

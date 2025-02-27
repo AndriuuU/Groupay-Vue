@@ -1,0 +1,88 @@
+.balance-list {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+  }
+  
+  .balance-list h3 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .balance-summary {
+    margin-bottom: 25px;
+  }
+  
+  .balance-card {
+    background-color: var(--secondary-color);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    text-align: center;
+  }
+  
+  .balance-card h4 {
+    margin-bottom: 10px;
+    color: var(--text-color);
+  }
+  
+  .balance-amount {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  
+  .balance-items {
+    margin-bottom: 25px;
+  }
+  
+  .balance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .balance-user {
+    font-weight: 500;
+  }
+  
+  .balance-details {
+    font-weight: 600;
+  }
+  
+  .positive {
+    color: var(--success-color);
+  }
+  
+  .negative {
+    color: var(--error-color);
+  }
+  
+  .neutral {
+    color: var(--text-light);
+  }
+  
+  .settlement-suggestions {
+    background-color: var(--secondary-color);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    margin-top: 20px;
+  }
+  
+  .settlement-suggestions h4 {
+    margin-bottom: 15px;
+    color: var(--text-color);
+  }
+  
+  .settlement-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .settlement-item:last-child {
+    border-bottom: none;
+  }
+  

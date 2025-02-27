@@ -57,6 +57,11 @@
       </div>
     </div>
   </template>
+
+  <style scoped>
+  
+  @import '../assets/css/views/dashboard.css';
+  </style>
   
   <script>
   export default {

@@ -452,3 +452,7 @@ export default {
   }
 };
 </script>
+
+<style>
+@import '../assets/css/views/group-detail.css';
+</style>

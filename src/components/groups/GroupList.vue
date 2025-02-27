@@ -133,3 +133,6 @@
   };
   </script>
   
+  <style scoped>
+@import '../../assets/css/expenses/expense-list.css';
+</style>
