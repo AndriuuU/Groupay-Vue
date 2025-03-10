@@ -1,151 +1,148 @@
 <template>
-    <div class="group-detail-page">
-      <div v-if="isLoading" class="loading-container">
-        <div class="spinner"></div>
-        <p>Cargando grupo...</p>
+  <div class="group-detail-page">
+    <div v-if="isLoading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando grupo...</p>
+    </div>
+    
+    <div v-else-if="!group" class="error-container">
+      <p>El grupo no existe o no tienes acceso</p>
+      <router-link to="/groups" class="btn btn-primary">Volver a mis grupos</router-link>
+    </div>
+    
+    <div v-else class="group-container">
+      <div class="group-header">
+        <h1>{{ group.name }}</h1>
+        <p class="group-description">{{ group.description }}</p>
+        <div class="group-actions">
+          <button class="btn btn-primary" @click="showAddExpenseModal = true">
+            <i class="fas fa-plus"></i> Añadir Gasto
+          </button>
+          <button class="btn btn-secondary" @click="showAddMemberModal = true">
+            <i class="fas fa-user-plus"></i> Añadir Miembro
+          </button>
+          <button class="btn btn-outline" @click="showGroupSettings = true">
+            <i class="fas fa-cog"></i> Configuración
+          </button>
+        </div>
       </div>
       
-      <div v-else-if="!group" class="error-container">
-        <p>El grupo no existe o no tienes acceso</p>
-        <router-link to="/groups" class="btn btn-primary">Volver a mis grupos</router-link>
-      </div>
-      
-      <div v-else class="group-container">
-        <div class="group-header">
-          <h1>{{ group.name }}</h1>
-          <p class="group-description">{{ group.description }}</p>
-          <div class="group-actions">
-            <button class="btn btn-primary" @click="showAddExpenseModal = true">
-              <i class="fas fa-plus"></i> Añadir Gasto
-            </button>
-            <button class="btn btn-secondary" @click="showAddMemberModal = true">
-              <i class="fas fa-user-plus"></i> Añadir Miembro
-            </button>
-            <button class="btn btn-outline" @click="showGroupSettings = true">
-              <i class="fas fa-cog"></i> Configuración
-            </button>
+      <div class="group-summary">
+        <div class="summary-card">
+          <h3>Balance Total</h3>
+          <div class="balance" :class="{'positive': userBalance >= 0, 'negative': userBalance < 0}">
+            <span v-if="userBalance > 0">Te deben: {{ formatCurrency(userBalance) }}</span>
+            <span v-else-if="userBalance < 0">Debes: {{ formatCurrency(Math.abs(userBalance)) }}</span>
+            <span v-else>Estás al día</span>
           </div>
         </div>
-        
-        <div class="group-summary">
-          <div class="summary-card">
-            <h3>Balance Total</h3>
-            <div class="balance" :class="{'positive': userBalance >= 0, 'negative': userBalance < 0}">
-              <span v-if="userBalance > 0">Te deben: {{ formatCurrency(userBalance) }}</span>
-              <span v-else-if="userBalance < 0">Debes: {{ formatCurrency(Math.abs(userBalance)) }}</span>
-              <span v-else>Estás al día</span>
+        <div class="summary-card">
+          <h3>Gastos Totales</h3>
+          <div class="total-expenses">{{ formatCurrency(totalExpenses) }}</div>
+        </div>
+        <div class="summary-card">
+          <h3>Miembros</h3>
+          <div class="members-count">{{ group.members.length }}</div>
+        </div>
+      </div>
+      
+      <div class="tabs">
+        <button 
+          class="tab-btn" 
+          :class="{'active': activeTab === 'expenses'}" 
+          @click="activeTab = 'expenses'"
+        >
+          Gastos
+        </button>
+        <button 
+          class="tab-btn" 
+          :class="{'active': activeTab === 'balances'}" 
+          @click="activeTab = 'balances'"
+        >
+          Balances
+        </button>
+        <button 
+          class="tab-btn" 
+          :class="{'active': activeTab === 'members'}" 
+          @click="activeTab = 'members'"
+        >
+          Miembros
+        </button>
+      </div>
+      
+      <div v-if="activeTab === 'expenses'" class="tab-content">
+        <expense-list 
+          :expenses="expenses" 
+          :members="group.members"
+          :isLoading="isLoadingExpenses"
+          @edit-expense="editExpense"
+          @delete-expense="deleteExpense"
+        />
+      </div>
+      
+      <div v-if="activeTab === 'balances'" class="tab-content">
+        <balance-list 
+          :balances="balances" 
+          :settlements="settlements"
+          :currentUserId="currentUserId"
+          :isLoading="isLoadingBalances"
+        />
+      </div>
+      
+      <div v-if="activeTab === 'members'" class="tab-content">
+        <div class="members-list">
+          <h3>Miembros del Grupo</h3>
+          <div v-for="member in group.members" :key="member.id" class="member-item">
+            <div class="member-info">
+              <span class="member-name">{{ member.name }}</span>
+              <span v-if="member.id === group.createdBy" class="member-badge">Creador</span>
             </div>
-          </div>
-          <div class="summary-card">
-            <h3>Gastos Totales</h3>
-            <div class="total-expenses">{{ formatCurrency(totalExpenses) }}</div>
-          </div>
-          <div class="summary-card">
-            <h3>Miembros</h3>
-            <div class="members-count">{{ group.members.length }}</div>
+            <button 
+              v-if="canRemoveMember(member.id)" 
+              class="btn-icon" 
+              @click="removeMember(member.id)"
+            >
+              <i class="fas fa-times"></i>
+            </button>
           </div>
         </div>
-        
-        <div class="tabs">
-          <button 
-            class="tab-btn" 
-            :class="{'active': activeTab === 'expenses'}" 
-            @click="activeTab = 'expenses'"
-          >
-            Gastos
-          </button>
-          <button 
-            class="tab-btn" 
-            :class="{'active': activeTab === 'balances'}" 
-            @click="activeTab = 'balances'"
-          >
-            Balances
-          </button>
-          <button 
-            class="tab-btn" 
-            :class="{'active': activeTab === 'members'}" 
-            @click="activeTab = 'members'"
-          >
-            Miembros
-          </button>
-        </div>
-        
-        <div v-if="activeTab === 'expenses'" class="tab-content">
-          <expense-list 
-            :expenses="expenses" 
+      </div>
+      
+      <modal v-if="showAddExpenseModal" @close="showAddExpenseModal = false">
+        <template #header>
+          <h3>Añadir Nuevo Gasto</h3>
+        </template>
+        <template #body>
+          <expense-form 
+            :groupId="group.id" 
             :members="group.members"
-            :isLoading="isLoadingExpenses"
-            @edit-expense="editExpense"
-            @delete-expense="deleteExpense"
+            @submit="addExpense" 
+            @cancel="showAddExpenseModal = false" 
           />
-        </div>
-        
-        <div v-if="activeTab === 'balances'" class="tab-content">
-          <balance-list 
-            :balances="balances" 
-            :settlements="settlements"
-            :currentUserId="currentUserId"
-            :isLoading="isLoadingBalances"
+        </template>
+      </modal>
+      
+      <modal v-if="showEditExpenseModal" @close="showEditExpenseModal = false">
+        <template #header>
+          <h3>Editar Gasto</h3>
+        </template>
+        <template #body>
+          <expense-form 
+            :expense="currentExpense" 
+            :groupId="group.id" 
+            :members="group.members"
+            @submit="updateExpense" 
+            @cancel="showEditExpenseModal = false" 
           />
-        </div>
-        
-        <div v-if="activeTab === 'members'" class="tab-content">
-          <div class="members-list">
-            <h3>Miembros del Grupo</h3>
-            <div v-for="member in group.members" :key="member.id" class="member-item">
-              <div class="member-info">
-                <span class="member-name">{{ member.name }}</span>
-                <span v-if="member.id === group.createdBy" class="member-badge">Creador</span>
-              </div>
-              <button 
-                v-if="canRemoveMember(member.id)" 
-                class="btn-icon" 
-                @click="removeMember(member.id)"
-              >
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Modal para añadir gasto -->
-        <modal v-if="showAddExpenseModal" @close="showAddExpenseModal = false">
-          <template #header>
-            <h3>Añadir Nuevo Gasto</h3>
-          </template>
-          <template #body>
-            <expense-form 
-              :groupId="group.id" 
-              :members="group.members"
-              @submit="addExpense" 
-              @cancel="showAddExpenseModal = false" 
-            />
-          </template>
-        </modal>
-        
-        <!-- Modal para editar gasto -->
-        <modal v-if="showEditExpenseModal" @close="showEditExpenseModal = false">
-          <template #header>
-            <h3>Editar Gasto</h3>
-          </template>
-          <template #body>
-            <expense-form 
-              :expense="currentExpense" 
-              :groupId="group.id" 
-              :members="group.members"
-              @submit="updateExpense" 
-              @cancel="showEditExpenseModal = false" 
-            />
-          </template>
-        </modal>
-        
-        <!-- Modal para añadir miembro -->
-        <modal v-if="showAddMemberModal" @close="showAddMemberModal = false">
-          <template #header>
-            <h3>Añadir Miembro al Grupo</h3>
-          </template>
-          <template #body>
-            <div class="add-member-form">
+        </template>
+      </modal>
+      
+      <modal v-if="showAddMemberModal" @close="showAddMemberModal = false">
+        <template #header>
+          <h3>Añadir Miembro al Grupo</h3>
+        </template>
+        <template #body>
+          <div class="add-member-form">
             <div class="form-group">
               <label for="member-email">Email del nuevo miembro</label>
               <input type="email" id="member-email" v-model="newMemberEmail" required>
@@ -166,7 +163,6 @@
         </template>
       </modal>
       
-      <!-- Modal para configuración del grupo -->
       <modal v-if="showGroupSettings" @close="showGroupSettings = false">
         <template #header>
           <h3>Configuración del Grupo</h3>
@@ -195,6 +191,8 @@ import ExpenseForm from '@/components/expenses/ExpenseForm.vue';
 import BalanceList from '@/components/balances/BalanceList.vue';
 import GroupForm from '@/components/groups/GroupForm.vue';
 import Modal from '@/components/common/Modal.vue';
+import groupService from '@/services/groupService';
+import expenseService from '@/services/expenseService';
 
 export default {
   name: 'GroupDetail',
@@ -230,6 +228,7 @@ export default {
       return this.expenses.reduce((total, expense) => total + expense.amount, 0);
     },
     userBalance() {
+      if (!this.balances || this.balances.length === 0) return 0;
       const userBalance = this.balances.find(balance => balance.userId === this.currentUserId);
       return userBalance ? userBalance.amount : 0;
     }
@@ -243,15 +242,12 @@ export default {
       this.isLoading = true;
       
       try {
-        // Obtener datos del grupo
         const groupResponse = await groupService.getGroup(groupId);
         this.group = groupResponse.data;
         
-        // Obtener gastos del grupo
         const expensesResponse = await expenseService.getGroupExpenses(groupId);
         this.expenses = expensesResponse.data;
         
-        // Obtener balances del grupo
         const balancesResponse = await groupService.getGroupBalances(groupId);
         this.balances = balancesResponse.data.balances;
         this.settlements = balancesResponse.data.settlements;
@@ -264,22 +260,14 @@ export default {
     },
     async addExpense(expenseData) {
       try {
-        // const response = await expenseService.createExpense(this.group.id, expenseData);
-        
-        // Simulación
-        const newExpense = {
-          id: this.expenses.length + 1,
-          ...expenseData,
-          createdAt: new Date().toISOString()
-        };
-        
-        this.expenses.push(newExpense);
+        console.log('Datos del gasto a enviar:', expenseData);
+        const response = await expenseService.createExpense(this.group.id, expenseData);
+        this.expenses.push(response.data);
         this.showAddExpenseModal = false;
-        
-        // Actualizar balances
         this.fetchBalances();
       } catch (error) {
-        console.error('Error al añadir gasto', error);
+        console.error('Error detallado:', error.response?.data);
+        this.error = error.response?.data?.message || 'Error al añadir gasto';
       }
     },
     editExpense(expense) {
@@ -288,18 +276,13 @@ export default {
     },
     async updateExpense(expenseData) {
       try {
-        // const response = await expenseService.updateExpense(expenseData.id, expenseData);
-        
-        // Simulación
+        const response = await expenseService.updateExpense(expenseData.id, expenseData);
         const index = this.expenses.findIndex(e => e.id === expenseData.id);
         if (index !== -1) {
-          this.expenses[index] = { ...this.expenses[index], ...expenseData };
+          this.expenses[index] = response.data;
         }
-        
         this.showEditExpenseModal = false;
         this.currentExpense = null;
-        
-        // Actualizar balances
         this.fetchBalances();
       } catch (error) {
         console.error('Error al actualizar gasto', error);
@@ -307,12 +290,8 @@ export default {
     },
     async deleteExpense(expenseId) {
       try {
-        // await expenseService.deleteExpense(expenseId);
-        
-        // Simulación
+        await expenseService.deleteExpense(expenseId);
         this.expenses = this.expenses.filter(e => e.id !== expenseId);
-        
-        // Actualizar balances
         this.fetchBalances();
       } catch (error) {
         console.error('Error al eliminar gasto', error);
@@ -321,15 +300,10 @@ export default {
     async fetchBalances() {
       this.isLoadingBalances = true;
       try {
-        // const response = await groupService.getGroupBalances(this.group.id);
-        // this.balances = response.data.balances;
-        // this.settlements = response.data.settlements;
-        
-        // Simulación: recalcular balances basados en los gastos
-        // Esto es una simplificación, en la realidad necesitarías un algoritmo más complejo
-        setTimeout(() => {
-          this.isLoadingBalances = false;
-        }, 500);
+        const response = await groupService.getGroupBalances(this.group.id);
+        this.balances = response.data.balances;
+        this.settlements = response.data.settlements;
+        this.isLoadingBalances = false;
       } catch (error) {
         console.error('Error al cargar balances', error);
         this.isLoadingBalances = false;
@@ -341,9 +315,7 @@ export default {
       this.isAddingMember = true;
       try {
         const response = await groupService.addGroupMember(this.group.id, { email: this.newMemberEmail });
-
-        
-        this.group.members.push(newMember);
+        this.group.members.push(response.data);
         this.newMemberEmail = '';
         this.showAddMemberModal = false;
       } catch (error) {
@@ -353,7 +325,6 @@ export default {
       }
     },
     canRemoveMember(memberId) {
-      // No permitir eliminar al creador del grupo o a uno mismo
       return memberId !== this.group.createdBy && memberId !== this.currentUserId;
     },
     async removeMember(memberId) {
@@ -361,7 +332,7 @@ export default {
       
       try {
         await groupService.removeGroupMember(this.group.id, memberId);
-        
+        this.group.members = this.group.members.filter(member => member.id !== memberId);
       } catch (error) {
         console.error('Error al eliminar miembro', error);
       }
@@ -369,7 +340,7 @@ export default {
     async updateGroup(groupData) {
       try {
         const response = await groupService.updateGroup(this.group.id, groupData);
-       
+        this.group = { ...this.group, ...response.data };
         this.showGroupSettings = false;
       } catch (error) {
         console.error('Error al actualizar grupo', error);
@@ -383,8 +354,6 @@ export default {
     async deleteGroup() {
       try {
         await groupService.deleteGroup(this.group.id);
-        
-        // Simulación
         this.$router.push('/groups');
       } catch (error) {
         console.error('Error al eliminar grupo', error);
@@ -400,6 +369,8 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 @import '../assets/css/views/group-detail.css';
+@import '../assets/css/expenses/expense-list.css';
+
 </style>

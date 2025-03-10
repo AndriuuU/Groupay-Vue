@@ -19,6 +19,14 @@
     flex-direction: column;
     gap: 15px;
   }
+  .filter-select {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--white);
+    color: var(--text-color);
+    font-size: 0.9rem;
+  }
   
   @media (min-width: 768px) {
     .groups-grid {

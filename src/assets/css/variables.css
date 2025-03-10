@@ -24,6 +24,8 @@
   
   /* Transiciones */
   --transition-speed: 0.3s;
+
+  --skeleton-color: #bdbdbd;
 }
 
 [data-theme="dark"] {

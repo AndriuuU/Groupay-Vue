@@ -56,13 +56,11 @@ export default {
       this.fetchUserData();
     }
     
-    // Verificar si hay una preferencia guardada para el tema
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       this.isDarkMode = savedTheme === 'dark';
       document.documentElement.setAttribute('data-theme', savedTheme);
     } else {
-      // Verificar preferencia del sistema
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       this.isDarkMode = prefersDark;
       document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
@@ -74,11 +72,6 @@ export default {
     },
     async fetchUserData() {
       try {
-        // En un entorno real, obtendrías los datos del usuario desde el API
-        // const response = await authService.getCurrentUser();
-        // this.userName = response.data.name;
-        
-        // Por ahora, usamos un valor por defecto
         this.userName = 'Usuario';
       } catch (error) {
         console.error('Error al obtener datos del usuario', error);
@@ -104,5 +97,5 @@ export default {
 </script>
 
 <style scoped>
- @import '../../assets/css/app/AppHeader.css';
+@import '../../assets/css/app/AppHeader.css';
 </style>
