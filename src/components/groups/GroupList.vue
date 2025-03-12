@@ -54,7 +54,7 @@
 import GroupItem from './GroupItem.vue';
 import GroupForm from './GroupForm.vue';
 import Modal from '../common/Modal.vue';
-import groupService from '@/services/groupService';
+import groupService from '../../services/groupService';
 
 export default {
   name: 'GroupList',
@@ -76,28 +76,35 @@ export default {
   },
   methods: {
     async fetchGroups() {
-      this.isLoading = true;
-      this.error = null;
-      try {
-        const response = await groupService.getGroups();
-        this.groups = response.data;
-      } catch (error) {
-        console.error('Error al cargar los grupos:', error);
-        this.error = 'No se pudieron cargar los grupos. Por favor, intenta de nuevo más tarde.';
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    async createGroup(groupData) {
-      try {
-        const response = await groupService.createGroup(groupData);
-        this.groups.push(response.data);
-        this.showCreateGroupModal = false;
-      } catch (error) {
-        console.error('Error al crear el grupo:', error);
-        alert('No se pudo crear el grupo. Por favor, intenta de nuevo.');
-      }
-    },
+  this.isLoading = true;
+  this.error = null;
+  
+  try {
+    const response = await groupService.getGroups();
+    this.groups = response.data.map(group => ({
+      ...group,
+      members: group.members || [], // Asegurar que members sea un array
+      balance: group.balance || 0, // Asegurar que balance esté definido
+      createdAt: group.createdAt || null // Asegurar que createdAt esté definido
+    }));
+  } catch (error) {
+    console.error('Error al cargar los grupos:', error);
+    this.error = 'No se pudieron cargar los grupos. Por favor, intenta de nuevo más tarde.';
+  } finally {
+    this.isLoading = false;
+  }
+}
+,
+async createGroup(groupData) {
+  try {
+    const response = await groupService.createGroup(groupData);
+    this.$router.push('/groups');
+    alert('Grupo creado con éxito');
+  } catch (error) {
+    console.error('Error al crear el grupo:', error);
+    alert('No se pudo crear el grupo. Por favor, intenta de nuevo.');
+  }
+},
     navigateToGroup(groupId) {
       this.$router.push(`/groups/${groupId}`);
     }

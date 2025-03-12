@@ -3,6 +3,8 @@ import { createApp } from 'vue'
 import './assets/css/global.css'
 import App from './App.vue'
 import router from './router'
+import FontAwesomeIcon from './assets/js/fontawesome'; // Importar configuración de Font Awesome
+
 
 // Inicializar tema
 const savedTheme = localStorage.getItem('theme');
@@ -15,5 +17,7 @@ if (savedTheme) {
 }
 
 const app = createApp(App)
+app.component('font-awesome-icon', FontAwesomeIcon); // Registrar el componente globalmente
+
 app.use(router)
 app.mount('#app')

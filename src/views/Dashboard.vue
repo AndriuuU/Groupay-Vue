@@ -85,8 +85,8 @@ export default {
   },
   computed: {
     totalBalance() {
-      return this.groups.reduce((total, group) => total + group.balance, 0);
-    },
+      return this.groups.reduce((total, group) => total + (group.balance ? parseFloat(group.balance) : 0), 0);
+      },
     recentGroups() {
       return this.groups.slice(0, 3);
     }

@@ -9,6 +9,9 @@ export default {
     return api.get(`/expenses/${id}`);
   },
   
+  getGroupExpenses(groupId, params = {}) {
+    return api.get(`/groups/${groupId}/expenses`, { params });
+  },
   createExpense(groupId, expenseData) {
     return api.post(`/groups/${groupId}/expenses`, expenseData);
   },

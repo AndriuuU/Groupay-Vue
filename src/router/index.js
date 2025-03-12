@@ -9,6 +9,7 @@ import GroupDetail from '@/views/GroupDetail.vue';
 import NotFound from '@/views/NotFound.vue';
 import Profile from '../views/Profile.vue';
 import GroupList from '../components/groups/GroupList.vue';
+import ExpensesList from '../views/ExpensesList.vue';
 
 const routes = [
   {
@@ -52,6 +53,12 @@ const routes = [
     path: '/profile',
     name: 'profile',
     component: Profile,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/expenses',
+    name: 'expenses',
+    component: ExpensesList,
     meta: { requiresAuth: true }
   },
   {

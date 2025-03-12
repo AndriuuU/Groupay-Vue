@@ -8,7 +8,7 @@ export default {
   getGroup(id) {
     return api.get(`/groups/${id}`);
   },
-  
+
   createGroup(groupData) {
     return api.post('/groups', groupData);
   },
@@ -35,5 +35,12 @@ export default {
   
   getGroupBalances(id) {
     return api.get(`/groups/${id}/balances`);
+  },
+  getMembers(groupId) {
+    return api.get(`/groups/${groupId}/members`);
+  },
+  getGroupBalances(groupId) {
+    return api.get(`/groups/${groupId}/balances`);
   }
+  
 };

@@ -1,3 +1,4 @@
+// api.js
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
@@ -18,18 +19,5 @@ api.interceptors.request.use(config => {
   }
   return config;
 });
-
-// Interceptor para manejar errores
-api.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response && error.response.status === 401) {
-      // Redirigir a login si hay error de autenticación
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
 
 export default api;

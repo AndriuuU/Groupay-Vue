@@ -1,3 +1,4 @@
+
 <template>
   <div class="group-detail-page">
     <div v-if="isLoading" class="loading-container">
@@ -74,6 +75,7 @@
         <expense-list 
           :expenses="expenses" 
           :members="group.members"
+          :groupId="group.id"
           :isLoading="isLoadingExpenses"
           @edit-expense="editExpense"
           @delete-expense="deleteExpense"
@@ -94,20 +96,29 @@
           <h3>Miembros del Grupo</h3>
           <div v-for="member in group.members" :key="member.id" class="member-item">
             <div class="member-info">
-              <span class="member-name">{{ member.name }}</span>
-              <span v-if="member.id === group.createdBy" class="member-badge">Creador</span>
+  <img 
+    v-if="member.avatar" 
+    :src="member.avatar" 
+    alt="Avatar de miembro" 
+    class="member-avatar"
+  >
+  <span class="member-name">{{ member.name }}</span>
+  <span v-if="member.id === group.createdBy" class="member-badge">Creador</span>
+</div>
+
+            <div class="member-actions">
+              <button 
+                v-if="canRemoveMember(member.id)" 
+                class="btn-icon btn-danger" 
+                @click="removeMember(member.id)"
+              >
+                <i class="fas fa-times"></i>
+              </button>
             </div>
-            <button 
-              v-if="canRemoveMember(member.id)" 
-              class="btn-icon" 
-              @click="removeMember(member.id)"
-            >
-              <i class="fas fa-times"></i>
-            </button>
           </div>
         </div>
       </div>
-      
+
       <modal v-if="showAddExpenseModal" @close="showAddExpenseModal = false">
         <template #header>
           <h3>Añadir Nuevo Gasto</h3>
@@ -116,11 +127,13 @@
           <expense-form 
             :groupId="group.id" 
             :members="group.members"
-            @submit="addExpense" 
+            @expense-created="addExpense"
             @cancel="showAddExpenseModal = false" 
           />
         </template>
-      </modal>
+      </modal>  
+
+
       
       <modal v-if="showEditExpenseModal" @close="showEditExpenseModal = false">
         <template #header>
@@ -131,11 +144,13 @@
             :expense="currentExpense" 
             :groupId="group.id" 
             :members="group.members"
-            @submit="updateExpense" 
+            @expense-updated="updateExpense" 
             @cancel="showEditExpenseModal = false" 
           />
         </template>
       </modal>
+
+
       
       <modal v-if="showAddMemberModal" @close="showAddMemberModal = false">
         <template #header>
@@ -241,33 +256,56 @@ export default {
       const groupId = this.$route.params.id;
       this.isLoading = true;
       
+      
       try {
+        const balancesResponse = await groupService.getGroupBalances(groupId);
+        this.balances = balancesResponse.data;
+        this.settlements = this.calculateSettlements(this.balances); // Asegúrate de que se calcule correctamente
+
         const groupResponse = await groupService.getGroup(groupId);
         this.group = groupResponse.data;
         
         const expensesResponse = await expenseService.getGroupExpenses(groupId);
+
         this.expenses = expensesResponse.data;
-        
-        const balancesResponse = await groupService.getGroupBalances(groupId);
-        this.balances = balancesResponse.data.balances;
-        this.settlements = balancesResponse.data.settlements;
-        
+      
         this.isLoading = false;
+        
       } catch (error) {
+        this.grupo==null;
         console.error('Error al cargar datos del grupo', error);
         this.isLoading = false;
       }
     },
+    async fetchExpenses() {
+      this.isLoadingExpenses = true;
+      this.error = null;
+
+      try {
+        const response = await expenseService.getGroupExpenses(this.group.id);
+        this.expenses = response.data;
+      } catch (error) {
+        console.error('Error al cargar los gastos:', error);
+        this.error = 'No se pudieron cargar los gastos.';
+      } finally {
+        this.isLoadingExpenses = false;
+      }
+    },
     async addExpense(expenseData) {
       try {
-        console.log('Datos del gasto a enviar:', expenseData);
         const response = await expenseService.createExpense(this.group.id, expenseData);
         this.expenses.push(response.data);
-        this.showAddExpenseModal = false;
+        this.showAddExpenseModal = false; // Cerrar el modal
+        await this.fetchExpenses(); // Actualizar la lista de gastos
         this.fetchBalances();
       } catch (error) {
         console.error('Error detallado:', error.response?.data);
-        this.error = error.response?.data?.message || 'Error al añadir gasto';
+        if (error.response && error.response.data && error.response.data.errors) {
+          const serverErrors = error.response.data.errors;
+          this.error = Object.values(serverErrors).flat().join(', ');
+        } else {
+          this.error = 'Error al añadir gasto.';
+        }
       }
     },
     editExpense(expense) {
@@ -275,19 +313,23 @@ export default {
       this.showEditExpenseModal = true;
     },
     async updateExpense(expenseData) {
-      try {
-        const response = await expenseService.updateExpense(expenseData.id, expenseData);
-        const index = this.expenses.findIndex(e => e.id === expenseData.id);
-        if (index !== -1) {
-          this.expenses[index] = response.data;
-        }
-        this.showEditExpenseModal = false;
-        this.currentExpense = null;
-        this.fetchBalances();
-      } catch (error) {
-        console.error('Error al actualizar gasto', error);
-      }
-    },
+  try {
+    if (!this.currentExpense || !this.currentExpense.id) {
+      console.error('ID del gasto no definido.');
+      return;
+    }
+    const response = await expenseService.updateExpense(this.currentExpense.id, expenseData);
+    const index = this.expenses.findIndex(e => e.id === this.currentExpense.id);
+    if (index !== -1) {
+      this.expenses[index] = response.data;
+    }
+    this.showEditExpenseModal = false;
+    this.currentExpense = null;
+    this.fetchBalances();
+  } catch (error) {
+    console.error('Error al actualizar gasto', error);
+  }
+},
     async deleteExpense(expenseId) {
       try {
         await expenseService.deleteExpense(expenseId);
@@ -297,18 +339,57 @@ export default {
         console.error('Error al eliminar gasto', error);
       }
     },
+
     async fetchBalances() {
-      this.isLoadingBalances = true;
-      try {
-        const response = await groupService.getGroupBalances(this.group.id);
-        this.balances = response.data.balances;
-        this.settlements = response.data.settlements;
-        this.isLoadingBalances = false;
-      } catch (error) {
-        console.error('Error al cargar balances', error);
-        this.isLoadingBalances = false;
+  console.log('Ejecutando fetchBalances...');
+  this.isLoadingBalances = true;
+  
+  try {
+    
+    const response = await groupService.getGroupBalances(this.group.id);
+    console.log('Respuesta de balances:', response.data);
+    this.balances = response.data;
+    console.log('Balances:', this.balances);
+    this.settlements = this.calculateSettlements(this.balances); // Calcular sugerencias de pago
+    console.log('Settlements:', this.settlements);
+    this.isLoadingBalances = false;
+  } catch (error) {
+    console.error('Error al cargar balances', error);
+    this.isLoadingBalances = false;
+  }
+}
+,
+calculateSettlements(balances) {
+  const users = balances.map(balance => ({ id: balance.userId, name: balance.userName, amount: balance.amount }));
+  const debtors = users.filter(user => user.amount < 0);
+  const creditors = users.filter(user => user.amount > 0);
+
+  const settlements = [];
+
+  debtors.forEach(debtor => {
+    while (debtor.amount < 0) {
+      const creditor = creditors.find(c => c.amount > 0);
+      if (!creditor) break;
+
+      const amountToPay = Math.min(Math.abs(debtor.amount), creditor.amount);
+      settlements.push({
+        from: debtor.name,
+        to: creditor.name,
+        amount: amountToPay
+      });
+
+      creditor.amount -= amountToPay;
+      debtor.amount += amountToPay;
+
+      if (creditor.amount === 0) {
+        creditors.splice(creditors.indexOf(creditor), 1);
       }
-    },
+    }
+  });
+
+  return settlements;
+}
+,
     async addMember() {
       if (!this.newMemberEmail) return;
       

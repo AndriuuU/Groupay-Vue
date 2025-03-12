@@ -1,10 +1,11 @@
 <template>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
   <header class="app-header">
     <div class="header-container">
       <router-link to="/" class="logo">Groupay</router-link>
       
       <div class="nav-links" v-if="isAuthenticated">
-        <router-link to="/dashboard" class="nav-link">Dashboard</router-link>
+        <router-link to="/dashboard" class="nav-link">Panel</router-link>
         <router-link to="/groups" class="nav-link">Mis Grupos</router-link>
       </div>
       
@@ -20,7 +21,7 @@
           </button>
           <div class="user-menu-dropdown" v-if="showUserMenu">
             <router-link to="/profile" class="dropdown-item">Mi Perfil</router-link>
-            <router-link to="/settings" class="dropdown-item">Configuración</router-link>
+            <!-- <router-link to="/settings" class="dropdown-item">Configuración</router-link> -->
             <a href="#" @click.prevent="logout" class="dropdown-item danger">Cerrar Sesión</a>
           </div>
         </div>
