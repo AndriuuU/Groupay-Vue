@@ -17,14 +17,11 @@
           </button>
         </div>
       </form>
-      <div class="social-login">
+      <!--<div class="form-actions">
         <button class="btn btn-google" @click="loginWithGoogle" :disabled="isLoading">
           <i class="fab fa-google"></i> Iniciar con Google
         </button>
-        <button class="btn btn-facebook" @click="loginWithFacebook" :disabled="isLoading">
-          <i class="fab fa-facebook"></i> Iniciar con Facebook
-        </button>
-      </div>
+      </div> -->
       <p class="login-footer">
         ¿No tienes cuenta? <router-link to="/register">Regístrate</router-link>
       </p>
@@ -61,13 +58,12 @@
         } finally {
           this.isLoading = false;
         }
-      },
-      
+      }
+      /*
       async loginWithGoogle() {
         // Implementación de login con Google
         this.isLoading = true;
         try {
-          // Aquí iría la lógica para obtener el token de Google
           const googleToken = 'google-token';
           const response = await authService.loginWithGoogle(googleToken);
           localStorage.setItem('token', response.data.token);
@@ -79,6 +75,7 @@
           this.isLoading = false;
         }
       },
+      */
        
     }
   };
