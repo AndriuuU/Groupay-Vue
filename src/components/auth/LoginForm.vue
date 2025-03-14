@@ -21,7 +21,8 @@
         <button class="btn btn-google" @click="loginWithGoogle" :disabled="isLoading">
           <i class="fab fa-google"></i> Iniciar con Google
         </button>
-      </div> -->
+      </div>
+      -->
       <p class="login-footer">
         ¿No tienes cuenta? <router-link to="/register">Regístrate</router-link>
       </p>

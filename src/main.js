@@ -1,9 +1,10 @@
 // src/main.js
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import './assets/css/global.css'
 import App from './App.vue'
 import router from './router'
-import FontAwesomeIcon from './assets/js/fontawesome'; // Importar configuración de Font Awesome
+import FontAwesomeIcon from './assets/js/fontawesome';
 
 
 // Inicializar tema
@@ -16,8 +17,10 @@ if (savedTheme) {
   localStorage.setItem('theme', prefersDark ? 'dark' : 'light');
 }
 
-const app = createApp(App)
-app.component('font-awesome-icon', FontAwesomeIcon); // Registrar el componente globalmente
+const pinia = createPinia()
 
+const app = createApp(App)
+app.component('font-awesome-icon', FontAwesomeIcon);
+app.use(pinia)
 app.use(router)
 app.mount('#app')

@@ -22,7 +22,8 @@
           <div class="user-menu-dropdown" v-if="showUserMenu">
             <router-link to="/profile" class="dropdown-item">Mi Perfil</router-link>
             <!-- <router-link to="/settings" class="dropdown-item">Configuración</router-link> -->
-            <a href="#" @click.prevent="logout" class="dropdown-item danger">Cerrar Sesión</a>
+            <a href="#" @click.prevent="logout" class="dropdown-item danger">
+              <i v-if="isLoading" class="fas fa-spinner fa-spin"></i> Cerrar Sesión</a>
           </div>
         </div>
         
@@ -42,9 +43,12 @@ export default {
   name: 'AppHeader',
   data() {
     return {
+      isAuthenticated: false,
+      userName: '',
       showUserMenu: false,
       userName: 'Usuario',
-      isDarkMode: false
+      isDarkMode: false,
+      isLoading: false
     };
   },
   computed: {
@@ -79,12 +83,16 @@ export default {
       }
     },
     async logout() {
+      this.isLoading = true;
+      
       try {
         await authService.logout();
         localStorage.removeItem('token');
-        this.$router.push('/login');
+        this.$router.push('/'); 
       } catch (error) {
         console.error('Error al cerrar sesión', error);
+      } finally {
+        this.isLoading = false; 
       }
     },
     toggleTheme() {
