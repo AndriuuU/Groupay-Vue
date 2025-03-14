@@ -1,4 +1,4 @@
-.group-item {
+  .group-item {
     display: flex;
     align-items: center;
     background-color: var(--white);
@@ -9,12 +9,12 @@
     cursor: pointer;
     transition: transform var(--transition-speed), box-shadow var(--transition-speed);
   }
-  
+
   .group-item:hover {
     transform: translateY(-3px);
     box-shadow: var(--box-shadow-hover);
   }
-  
+
   .group-icon {
     width: 60px;
     height: 60px;
@@ -26,42 +26,44 @@
     margin-right: 15px;
     flex-shrink: 0;
   }
-  
+
   .group-icon i {
     color: var(--primary-dark);
     font-size: 1.5rem;
   }
-  
+
   .group-content {
     flex: 1;
   }
-  
+
   .group-name {
     font-size: 1.2rem;
     margin: 0 0 5px 0;
     color: var(--text-color);
   }
-  
+
   .group-description {
     color: var(--text-light);
     margin: 0 0 10px 0;
     font-size: 0.9rem;
   }
-  
+
   .group-meta {
     display: flex;
     gap: 15px;
     color: var(--text-light);
     font-size: 0.8rem;
+    flex-wrap: wrap; 
   }
-  
+
   .group-balance {
     font-weight: 600;
     padding: 8px 12px;
     border-radius: var(--border-radius);
     background-color: var(--secondary-color);
   }
-  
+
+
   .positive {
     color: var(--success-color);
   }

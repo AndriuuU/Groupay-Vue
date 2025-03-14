@@ -45,10 +45,14 @@
       
       <div class="recent-groups">
         <h2>Grupos Recientes</h2>
-        <div v-if="groups.length === 0" class="empty-state">
-          <p>No tienes grupos todavía</p>
-          <router-link to="/groups/new" class="btn btn-primary">Crear Grupo</router-link>
-        </div>
+        <modal v-if="showCreateGroupModal" @close="showCreateGroupModal = false">
+      <template #header>
+        <h3>Crear Nuevo Grupo</h3>
+      </template>
+      <template #body>
+        <group-form @submit="createGroup" @cancel="showCreateGroupModal = false" />
+      </template>
+    </modal>
         <div v-else class="groups-preview">
           <div v-for="group in recentGroups" :key="group.id" class="group-preview" @click="goToGroup(group.id)">
             <h3>{{ group.name }}</h3>

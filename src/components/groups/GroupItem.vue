@@ -7,23 +7,28 @@
       <h3 class="group-name">{{ group.name }}</h3>
       <p class="group-description">{{ group.description }}</p>
       <div class="group-meta">
-        <!-- Validación para evitar errores si group.members es undefined -->
         <span v-if="group.members && group.members.length > 0" class="group-members">
-          <i class="fas fa-users"></i> {{ group.members.length }} miembros
+          <i class="fas fa-users"></i> 
+          Miembros: 
+          <span v-if="group.members.length <= 5">
+            {{ group.members.map(member => member.name).join(', ') }}
+          </span>
+          <span v-else>
+            {{ group.members.length }} miembros
+          </span>
         </span>
         <span v-else class="group-members">
           <i class="fas fa-users"></i> Sin miembros
         </span>
-        <span v-if="group.createdAt" class="group-date">
-          <i class="far fa-calendar-alt"></i> {{ formatDate(group.createdAt) }}
+        <span v-if="group.created_at" class="group-date">
+          <i class="far fa-calendar-alt"></i> {{ formatDate(group.created_at) }}
         </span>
       </div>
     </div>
-    <div class="group-balance" :class="balanceClass">
-      <span v-if="group.balance > 0">Te deben: {{ formatCurrency(group.balance) }}</span>
-      <span v-else-if="group.balance < 0">Debes: {{ formatCurrency(Math.abs(group.balance)) }}</span>
-      <span v-else>Balance: 0€</span>
-    </div>
+   <!-- <div class="group-balance" :class="balanceClass">
+      <span> {{group.gastos}}</span>
+      
+    </div>-->
   </div>
 </template>
 
