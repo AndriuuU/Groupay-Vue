@@ -36,7 +36,7 @@ npm run dev
 
 
 4. **Acceder a la Aplicación**:
-Abre tu navegador y accede a `http://localhost:3000`.
+Abre tu navegador y accede a `http://localhost:5173/`.
 
 ## Despliegue Público
 
@@ -69,6 +69,3 @@ Si deseas contribuir al proyecto, por favor, sigue las siguientes pautas:
 - **services**: Servicios para interactuar con la API.
 - **assets**: Recursos estáticos (estilos, imágenes, etc.).
 
-## Problemas Comunes
-
-Si tienes problemas con la conexión a la API, asegúrate de que la URL base en `api.js` esté correctamente configurada para apuntar a tu servidor.
