@@ -69,3 +69,6 @@ Si deseas contribuir al proyecto, por favor, sigue las siguientes pautas:
 - **services**: Servicios para interactuar con la API.
 - **assets**: Recursos estáticos (estilos, imágenes, etc.).
 
+## Problemas
+
+A la hora de probarlo en el despliegue me da error, porque Netlify no te permite conectarte una ruta no certificada (http), el servidor esta desplegado en Google cloud y no he conseguido darle seguridad con (https). Para probarlo es mejor hacerlo en local. Estoy trabajando en ello pero no he tenido mas tiempo. En local funciona perfectamente.
