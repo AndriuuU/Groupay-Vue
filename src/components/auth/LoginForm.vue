@@ -46,19 +46,14 @@
     },
     methods: {
       async login() {
-        this.isLoading = true;
-        this.error = null;
         try {
           await authService.login(this.form);
-          this.$emit('login-success');
           this.$router.push('/dashboard');
         } catch (error) {
+          // Manejar errores específicos de Firebase
           switch (error.code) {
-            case 'auth/invalid-email':
-              this.error = 'Email inválido';
-              break;
             case 'auth/user-not-found':
-              this.error = 'No existe una cuenta con ese email';
+              this.error = 'Usuario no registrado';
               break;
             case 'auth/wrong-password':
               this.error = 'Contraseña incorrecta';
@@ -66,8 +61,6 @@
             default:
               this.error = 'Error al iniciar sesión';
           }
-        } finally {
-          this.isLoading = false;
         }
       }
     }

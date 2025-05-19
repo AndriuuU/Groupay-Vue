@@ -208,6 +208,8 @@ import GroupForm from '@/components/groups/GroupForm.vue';
 import Modal from '@/components/common/Modal.vue';
 import groupService from '@/services/groupService';
 import expenseService from '@/services/expenseService';
+import { BalanceCalculator } from '../utils/BalanceCalculator';
+
 
 export default {
   name: 'GroupDetail',
@@ -253,28 +255,20 @@ export default {
   },
   methods: {
     async fetchGroupData() {
-      const groupId = this.$route.params.id;
-      this.isLoading = true;
-      
-      
       try {
-        const balancesResponse = await groupService.getGroupBalances(groupId);
-        this.balances = balancesResponse.data;
-        this.settlements = this.calculateSettlements(this.balances); // Asegúrate de que se calcule correctamente
-
-        const groupResponse = await groupService.getGroup(groupId);
-        this.group = groupResponse.data;
+        const groupId = this.$route.params.id;
         
-        const expensesResponse = await expenseService.getGroupExpenses(groupId);
-
-        this.expenses = expensesResponse.data;
-      
-        this.isLoading = false;
+        // Obtener datos de Firestore
+        const group = await groupService.getGroup(groupId);
+        const expenses = await expenseService.getGroupExpenses(groupId);
+        
+        // Calcular balances
+        const balanceCalculator = new BalanceCalculator(group.members, expenses);
+        this.balances = balanceCalculator.calculateBalances();
+        this.settlements = balanceCalculator.calculateSettlements();
         
       } catch (error) {
-        this.grupo==null;
-        console.error('Error al cargar datos del grupo', error);
-        this.isLoading = false;
+        console.error('Error:', error);
       }
     },
     async fetchExpenses() {
