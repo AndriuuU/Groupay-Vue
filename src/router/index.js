@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
-
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 // Importar vistas
 import Home from '@/views/Home.vue';
 import Login from '@/views/Login.vue';
 import Register from '@/views/Register.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import GroupDetail from '@/views/GroupDetail.vue';
-import NotFound from '@/views/NotFound.vue';
+import NotFound from '../views/NotFound.vue';
 import Profile from '../views/Profile.vue';
 import GroupList from '../components/groups/GroupList.vue';
 import ExpensesList from '../views/ExpensesList.vue';
@@ -73,13 +73,25 @@ const router = createRouter({
   routes
 });
 
-// Guardia de navegación para autenticación
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('token');
-  
-  if (to.meta.requiresAuth && !isAuthenticated) {
+// Función auxiliar para esperar el usuario de Firebase
+function getCurrentUser() {
+  const auth = getAuth();
+  return new Promise((resolve, reject) => {
+    const removeListener = onAuthStateChanged(auth, user => {
+      removeListener();
+      resolve(user);
+    }, reject);
+  });
+}
+
+// Guardia de navegación para autenticación con Firebase
+router.beforeEach(async (to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const user = await getCurrentUser();
+
+  if (requiresAuth && !user) {
     next('/login');
-  } else if ((to.name === 'login' || to.name === 'register') && isAuthenticated) {
+  } else if ((to.name === 'login' || to.name === 'register') && user) {
     next('/dashboard');
   } else {
     next();

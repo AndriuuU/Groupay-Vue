@@ -1,35 +1,23 @@
-import api from './api';
+
+import { auth } from '../services/firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
 
 export default {
-  login(credentials) {
-    return api.post('/login', credentials);
+  async login({ email, password }) {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
   },
-  
-  register(userData) {
-    return api.post('/register', userData);
+  async register({ name, email, password }) {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    if (name) {
+      await updateProfile(userCredential.user, { displayName: name });
+    }
+    return userCredential.user;
   },
-  
-  logout() {
-    return api.post('/logout');
+  async logout() {
+    await signOut(auth);
   },
-  
   getCurrentUser() {
-    return api.get('/user');
-  },
-  
-  loginWithGoogle(token) {
-    return api.post('/google', { token });
-  },
-  
-  loginWithFacebook(token) {
-    return api.post('/facebook', { token });
-  },
-  
-  updateProfile(userData) {
-    return api.put('/profile', userData);
-  },
-  
-  changePassword(passwordData) {
-    return api.put('/password', passwordData);
+    return auth.currentUser;
   }
 };

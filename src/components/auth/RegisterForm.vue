@@ -54,22 +54,36 @@
           this.error = 'Las contraseñas no coinciden';
           return;
         }
-        
         this.isLoading = true;
         this.error = null;
-        
         try {
-          const response = await authService.register(this.form);
-          localStorage.setItem('token', response.data.token);
-          this.$emit('register-success', response.data.user);
+          await authService.register({
+            name: this.form.name,
+            email: this.form.email,
+            password: this.form.password
+          });
+          this.$emit('register-success');
           this.$router.push('/dashboard');
         } catch (error) {
-          this.error = error.response?.data?.message || 'Error al registrar usuario';
+          switch (error.code) {
+            case 'auth/email-already-in-use':
+              this.error = 'El email ya está en uso';
+              break;
+            case 'auth/invalid-email':
+              this.error = 'Email inválido';
+              break;
+            case 'auth/weak-password':
+              this.error = 'La contraseña es demasiado débil';
+              break;
+            default:
+              this.error = 'Error al registrar usuario';
+          }
         } finally {
           this.isLoading = false;
         }
       }
     }
+
   };
   </script>
   

@@ -48,37 +48,31 @@
       async login() {
         this.isLoading = true;
         this.error = null;
-        
         try {
-          const response = await authService.login(this.form);
-          localStorage.setItem('token', response.data.token);
-          this.$emit('login-success', response.data.user);
+          await authService.login(this.form);
+          this.$emit('login-success');
           this.$router.push('/dashboard');
         } catch (error) {
-          this.error = error.response?.data?.message || 'Error al iniciar sesión';
+          switch (error.code) {
+            case 'auth/invalid-email':
+              this.error = 'Email inválido';
+              break;
+            case 'auth/user-not-found':
+              this.error = 'No existe una cuenta con ese email';
+              break;
+            case 'auth/wrong-password':
+              this.error = 'Contraseña incorrecta';
+              break;
+            default:
+              this.error = 'Error al iniciar sesión';
+          }
         } finally {
           this.isLoading = false;
         }
       }
-      /*
-      async loginWithGoogle() {
-        // Implementación de login con Google
-        this.isLoading = true;
-        try {
-          const googleToken = 'google-token';
-          const response = await authService.loginWithGoogle(googleToken);
-          localStorage.setItem('token', response.data.token);
-          this.$emit('login-success', response.data.user);
-          this.$router.push('/dashboard');
-        } catch (error) {
-          this.error = 'Error al iniciar sesión con Google';
-        } finally {
-          this.isLoading = false;
-        }
-      },
-      */
-       
     }
+
   };
   </script>
+  
   

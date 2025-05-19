@@ -1,11 +1,9 @@
-// src/main.js
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import './assets/css/global.css'
 import App from './App.vue'
 import router from './router'
-import FontAwesomeIcon from './assets/js/fontawesome';
-
+import FontAwesomeIcon from './assets/js/fontawesome'
 
 // Inicializar tema
 const savedTheme = localStorage.getItem('theme');
@@ -18,9 +16,9 @@ if (savedTheme) {
 }
 
 const pinia = createPinia()
-
 const app = createApp(App)
-app.component('font-awesome-icon', FontAwesomeIcon);
+app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(pinia)
 app.use(router)
 app.mount('#app')
+
