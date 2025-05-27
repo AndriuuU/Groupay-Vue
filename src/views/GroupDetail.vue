@@ -255,21 +255,17 @@ export default {
   },
   methods: {
     async fetchGroupData() {
-      try {
-        const groupId = this.$route.params.id;
-        
-        // Obtener datos de Firestore
-        const group = await groupService.getGroup(groupId);
-        const expenses = await expenseService.getGroupExpenses(groupId);
-        
-        // Calcular balances
-        const balanceCalculator = new BalanceCalculator(group.members, expenses);
-        this.balances = balanceCalculator.calculateBalances();
-        this.settlements = balanceCalculator.calculateSettlements();
-        
-      } catch (error) {
-        console.error('Error:', error);
-      }
+    const groupId = this.$route.params.id;
+    this.isLoading = true;
+    try {
+      this.group = await groupService.getGroup(groupId);
+      this.expenses = await expenseService.getGroupExpenses(groupId);
+      // Calcula balances y settlements aquí si lo necesitas
+      this.isLoading = false;
+    } catch (error) {
+      this.isLoading = false;
+      // Maneja el error
+    }
     },
     async fetchExpenses() {
       this.isLoadingExpenses = true;
