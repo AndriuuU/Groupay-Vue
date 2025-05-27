@@ -18,9 +18,10 @@
       <div class="form-group">
         <label for="paidBy">Pagado por</label>
         <select id="paidBy" v-model="form.paidBy" required>
-          <option v-for="member in members" :key="member.id" :value="member.id">
-            {{ member.name }}
-          </option>
+        <option v-for="member in members" :key="member.id" :value="member.id">
+          {{ member.name }} ({{ member.email }})
+        </option>
+
         </select>
       </div>
       <div class="form-group">
@@ -32,8 +33,7 @@
             :value="member.id" 
             v-model="form.participants"
           >
-          <label :for="'member-' + member.id">{{ member.name }}</label>
-        </div>
+          <label :for="'member-' + member.id">{{ member.name }} ({{ member.email }})</label>        </div>
       </div>
       <div class="form-group">
         <label for="category">Categoría</label>
@@ -111,61 +111,39 @@ export default {
     this.form.participants = this.members.map(member => member.id);
   }
 },
-
   methods: {
-    async submitForm() {
-  if (!this.form.description || !this.form.amount || !this.form.date || !this.form.paidBy || this.form.participants.length === 0) {
-    this.error = 'Todos los campos son obligatorios.';
-    return;
-  }
-
-  this.isLoading = true;
-  this.error = null;
-
-  try {
-    const expenseData = {
-      description: this.form.description.trim(),
-      amount: parseFloat(this.form.amount),
-      date: this.form.date,
-      category: this.form.category,
-      paidBy: this.form.paidBy, // Asegúrate que es un número entero válido
-      participants: this.form.participants, // Array de IDs válidos
-      
-    };
-    console.log(expenseData);
-
-
-    if (this.isEditing) {
-      await expenseService.updateExpense(this.expense.id, expenseData);
-      this.$emit('expense-updated');
-    } else {
-      const response = await expenseService.createExpense(this.groupId, expenseData);
-      this.$emit('expense-created', response.data);
+  async submitForm() {
+    if (!this.form.description || !this.form.amount || !this.form.date || !this.form.paidBy || this.form.participants.length === 0) {
+      this.error = 'Todos los campos son obligatorios.';
+      return;
     }
-
-    // Siempre cierra modal y refresca página después de guardar o editar:
-    this.$emit('cancel');
-    window.location.reload(); // <-- Aquí refrescas SIEMPRE
-
-  } catch (error) {
-    if (error.response && error.response.data && error.response.data.errors) {
-      const serverErrors = error.response.data.errors;
-      this.error = Object.values(serverErrors).flat().join(', ');
-    } else {
+    this.isLoading = true;
+    this.error = null;
+    try {
+      const expenseData = {
+        description: this.form.description.trim(),
+        amount: parseFloat(this.form.amount),
+        date: this.form.date,
+        category: this.form.category,
+        paidBy: this.form.paidBy, // string: UID
+        participants: this.form.participants, // array de UID
+      };
+      if (this.isEditing) {
+        await expenseService.updateExpense(this.expense.id, expenseData);
+        this.$emit('expense-updated');
+      } else {
+        await expenseService.createExpense(this.groupId, expenseData);
+        this.$emit('expense-created');
+      }
+      this.$emit('cancel');
+    } catch (error) {
       this.error = 'Error al guardar el gasto.';
+    } finally {
+      this.isLoading = false;
     }
-    
-    // Refrescar incluso si falla:
-  } finally {
-    this.isLoading = false;
   }
 }
 
-
-
-
-
-  }
 };
 </script>
 

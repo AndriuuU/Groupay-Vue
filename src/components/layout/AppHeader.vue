@@ -47,6 +47,9 @@ const isDarkMode = ref(false)
 const showUserMenu = ref(false)
 const isLoading = ref(false)
 
+const isAuthenticated = computed(() => !!user.value)
+
+
 onMounted(() => {
   const savedTheme = localStorage.getItem('theme')
   if (savedTheme) {
@@ -82,7 +85,6 @@ async function logout() {
   }
 }
 
-const isAuthenticated = computed(() => !!user.value)
 const userName = computed(() =>
   user.value?.displayName || user.value?.email || 'Usuario'
 )

@@ -255,18 +255,42 @@ export default {
   },
   methods: {
     async fetchGroupData() {
-    const groupId = this.$route.params.id;
-    this.isLoading = true;
-    try {
-      this.group = await groupService.getGroup(groupId);
-      this.expenses = await expenseService.getGroupExpenses(groupId);
-      // Calcula balances y settlements aquí si lo necesitas
-      this.isLoading = false;
-    } catch (error) {
-      this.isLoading = false;
-      // Maneja el error
-    }
+      const groupId = this.$route.params.id;
+      this.isLoading = true;
+      try {
+        // 1. Cargar el grupo (obtienes los IDs de miembros)
+        this.group = await groupService.getGroup(groupId);
+
+        // 2. Cargar los datos completos de los miembros
+        const memberIds = this.group.members; // array de UIDs
+        let members = [];
+        if (memberIds.length > 0) {
+          // Firestore permite hasta 10 elementos por consulta 'in'
+          const chunkSize = 10;
+          for (let i = 0; i < memberIds.length; i += chunkSize) {
+            const chunk = memberIds.slice(i, i + chunkSize);
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('__name__', 'in', chunk));
+            const snapshot = await getDocs(q);
+            members = members.concat(snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            })));
+          }
+        }
+        // 3. Asignar los miembros completos al grupo
+        this.group.members = members;
+
+        // 4. Cargar los gastos normalmente
+        this.expenses = await expenseService.getGroupExpenses(groupId);
+
+        this.isLoading = false;
+      } catch (error) {
+        this.isLoading = false;
+        // Maneja el error
+      }
     },
+
     async fetchExpenses() {
       this.isLoadingExpenses = true;
       this.error = null;
@@ -330,56 +354,69 @@ export default {
       }
     },
 
-    async fetchBalances() {
-  console.log('Ejecutando fetchBalances...');
-  this.isLoadingBalances = true;
-  
-  try {
-    
-    const response = await groupService.getGroupBalances(this.group.id);
-    console.log('Respuesta de balances:', response.data);
-    this.balances = response.data;
-    console.log('Balances:', this.balances);
-    this.settlements = this.calculateSettlements(this.balances); // Calcular sugerencias de pago
-    console.log('Settlements:', this.settlements);
-    this.isLoadingBalances = false;
-  } catch (error) {
-    console.error('Error al cargar balances', error);
-    this.isLoadingBalances = false;
-  }
-}
-,
-calculateSettlements(balances) {
-  const users = balances.map(balance => ({ id: balance.userId, name: balance.userName, amount: balance.amount }));
-  const debtors = users.filter(user => user.amount < 0);
-  const creditors = users.filter(user => user.amount > 0);
+   async fetchBalances() {
+      this.isLoadingBalances = true;
+      try {
+        // Usa los miembros y gastos actuales
+        const members = this.group.members.map(m => ({
+          uid: m.id || m.uid,
+          name: m.name,
+          email: m.email
+        }));
+        const expenses = this.expenses.map(e => ({
+          amount: e.amount,
+          paidBy: e.paid_by.id || e.paidBy,
+          participants: e.participants.map(p => p.id || p.uid)
+        }));
+        const calculator = new BalanceCalculator(members, expenses);
+        this.balances = calculator.calculateBalances().map(b => ({
+          userId: b.uid,
+          userName: b.name,
+          amount: b.balance
+        }));
+        this.settlements = calculator.calculateSettlements().map(s => ({
+          from: s.fromName,
+          to: s.toName,
+          amount: s.amount
+        }));
+      } catch (error) {
+        console.error('Error al calcular balances', error);
+      } finally {
+        this.isLoadingBalances = false;
+      }
+    },
+        
+    calculateSettlements(balances) {
+      const users = balances.map(balance => ({ id: balance.userId, name: balance.userName, amount: balance.amount }));
+      const debtors = users.filter(user => user.amount < 0);
+      const creditors = users.filter(user => user.amount > 0);
 
-  const settlements = [];
+      const settlements = [];
 
-  debtors.forEach(debtor => {
-    while (debtor.amount < 0) {
-      const creditor = creditors.find(c => c.amount > 0);
-      if (!creditor) break;
+      debtors.forEach(debtor => {
+        while (debtor.amount < 0) {
+          const creditor = creditors.find(c => c.amount > 0);
+          if (!creditor) break;
 
-      const amountToPay = Math.min(Math.abs(debtor.amount), creditor.amount);
-      settlements.push({
-        from: debtor.name,
-        to: creditor.name,
-        amount: amountToPay
+          const amountToPay = Math.min(Math.abs(debtor.amount), creditor.amount);
+          settlements.push({
+            from: debtor.name,
+            to: creditor.name,
+            amount: amountToPay
+          });
+
+          creditor.amount -= amountToPay;
+          debtor.amount += amountToPay;
+
+          if (creditor.amount === 0) {
+            creditors.splice(creditors.indexOf(creditor), 1);
+          }
+        }
       });
 
-      creditor.amount -= amountToPay;
-      debtor.amount += amountToPay;
-
-      if (creditor.amount === 0) {
-        creditors.splice(creditors.indexOf(creditor), 1);
-      }
-    }
-  });
-
-  return settlements;
-}
-,
+      return settlements;
+    },
+    
     async addMember() {
       if (!this.newMemberEmail) return;
       

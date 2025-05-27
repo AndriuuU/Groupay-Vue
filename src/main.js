@@ -4,8 +4,8 @@ import './assets/css/global.css'
 import App from './App.vue'
 import router from './router'
 import FontAwesomeIcon from './assets/js/fontawesome'
+import { useAuthStore } from './store/authStore'
 
-// Inicializar tema
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
   document.documentElement.setAttribute('data-theme', savedTheme);
@@ -20,5 +20,8 @@ const app = createApp(App)
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(pinia)
 app.use(router)
-app.mount('#app')
 
+const authStore = useAuthStore()
+authStore.init()
+
+app.mount('#app')

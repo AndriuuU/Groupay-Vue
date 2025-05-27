@@ -8,7 +8,9 @@ export const useAuthStore = defineStore('auth', {
   }),
   actions: {
     init() {
-      onAuthStateChanged(auth, (user) => {
+      // Solo inicializa una vez el listener
+      if (this._unsubscribe) return;
+      this._unsubscribe = onAuthStateChanged(auth, (user) => {
         this.user = user;
       });
     },

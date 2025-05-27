@@ -31,59 +31,60 @@
     </div>
   </template>
   
-  <script>
-  import authService from '@/services/authService';
-  
-  export default {
-    name: 'RegisterForm',
-    data() {
-      return {
-        form: {
-          name: '',
-          email: '',
-          password: '',
-          password_confirmation: ''
-        },
-        isLoading: false,
-        error: null
-      };
-    },
-    methods: {
-      async register() {
-        if (this.form.password !== this.form.password_confirmation) {
-          this.error = 'Las contraseñas no coinciden';
-          return;
+<script>
+import authService from '@/services/authService';
+
+export default {
+  name: 'RegisterForm',
+  data() {
+    return {
+      form: {
+        name: '',
+        email: '',
+        password: '',
+        password_confirmation: ''
+      },
+      isLoading: false,
+      error: null
+    };
+  },
+  methods: {
+    async register() {
+      if (this.form.password !== this.form.password_confirmation) {
+        this.error = 'Las contraseñas no coinciden';
+        return;
+      }
+      this.isLoading = true;
+      this.error = null;
+      try {
+        await authService.register({
+          name: this.form.name,
+          email: this.form.email,
+          password: this.form.password
+        });
+        // El listener de Pinia actualizará el usuario automáticamente
+        this.$emit('register-success');
+        this.$router.push('/dashboard');
+      } catch (error) {
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            this.error = 'El email ya está en uso';
+            break;
+          case 'auth/invalid-email':
+            this.error = 'Email inválido';
+            break;
+          case 'auth/weak-password':
+            this.error = 'La contraseña es demasiado débil';
+            break;
+          default:
+            this.error = 'Error al registrar usuario';
         }
-        this.isLoading = true;
-        this.error = null;
-        try {
-          await authService.register({
-            name: this.form.name,
-            email: this.form.email,
-            password: this.form.password
-          });
-          this.$emit('register-success');
-          this.$router.push('/dashboard');
-        } catch (error) {
-          switch (error.code) {
-            case 'auth/email-already-in-use':
-              this.error = 'El email ya está en uso';
-              break;
-            case 'auth/invalid-email':
-              this.error = 'Email inválido';
-              break;
-            case 'auth/weak-password':
-              this.error = 'La contraseña es demasiado débil';
-              break;
-            default:
-              this.error = 'Error al registrar usuario';
-          }
-        } finally {
-          this.isLoading = false;
-        }
+      } finally {
+        this.isLoading = false;
       }
     }
+  }
+};
+</script>
 
-  };
-  </script>
   
