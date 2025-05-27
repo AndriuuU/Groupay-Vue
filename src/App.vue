@@ -1,4 +1,6 @@
 <template>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
   <div class="app-container">
     <app-header />
     <main class="app-content">
