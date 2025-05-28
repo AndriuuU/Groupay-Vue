@@ -237,7 +237,7 @@ export default {
       showGroupSettings: false,
       currentExpense: null,
       newMemberEmail: '',
-      currentUserId: 1 // Esto debería venir de tu estado de autenticación
+      currentUserId: 1
     };
   },
   computed: {
@@ -258,36 +258,22 @@ export default {
       const groupId = this.$route.params.id;
       this.isLoading = true;
       try {
-        // 1. Cargar el grupo (obtienes los IDs de miembros)
         this.group = await groupService.getGroup(groupId);
-
-        // 2. Cargar los datos completos de los miembros
-        const memberIds = this.group.members; // array de UIDs
-        let members = [];
-        if (memberIds.length > 0) {
-          // Firestore permite hasta 10 elementos por consulta 'in'
-          const chunkSize = 10;
-          for (let i = 0; i < memberIds.length; i += chunkSize) {
-            const chunk = memberIds.slice(i, i + chunkSize);
-            const usersRef = collection(db, 'users');
-            const q = query(usersRef, where('__name__', 'in', chunk));
-            const snapshot = await getDocs(q);
-            members = members.concat(snapshot.docs.map(doc => ({
-              id: doc.id,
-              ...doc.data()
-            })));
-          }
-        }
-        // 3. Asignar los miembros completos al grupo
-        this.group.members = members;
-
-        // 4. Cargar los gastos normalmente
-        this.expenses = await expenseService.getGroupExpenses(groupId);
-
+        
+        const expensesRaw = await expenseService.getGroupExpenses(groupId);
+        this.expenses = expensesRaw.map(expense => ({
+          ...expense,
+          paid_by: this.group.members.find(m => m.id === expense.paidBy) || { name: 'Desconocido' },
+          participants: (expense.participants || []).map(pid => 
+            this.group.members.find(m => m.id === pid) || { name: 'Desconocido' }
+          )
+        }));
+        
+        await this.fetchBalances();
         this.isLoading = false;
       } catch (error) {
         this.isLoading = false;
-        // Maneja el error
+        this.error = 'Error al cargar el grupo';
       }
     },
 
@@ -305,23 +291,16 @@ export default {
         this.isLoadingExpenses = false;
       }
     },
-    async addExpense(expenseData) {
+   async addExpense(expenseData) {
       try {
-        const response = await expenseService.createExpense(this.group.id, expenseData);
-        this.expenses.push(response.data);
-        this.showAddExpenseModal = false; // Cerrar el modal
-        await this.fetchExpenses(); // Actualizar la lista de gastos
-        this.fetchBalances();
+        await expenseService.createExpense(this.group.id, expenseData);
+        await this.fetchGroupData(); // Recarga datos y recalcula balances
+        this.showAddExpenseModal = false;
       } catch (error) {
-        console.error('Error detallado:', error.response?.data);
-        if (error.response && error.response.data && error.response.data.errors) {
-          const serverErrors = error.response.data.errors;
-          this.error = Object.values(serverErrors).flat().join(', ');
-        } else {
-          this.error = 'Error al añadir gasto.';
-        }
+        this.error = 'Error al añadir gasto.';
       }
     },
+
     editExpense(expense) {
       this.currentExpense = expense;
       this.showEditExpenseModal = true;
@@ -357,7 +336,6 @@ export default {
    async fetchBalances() {
       this.isLoadingBalances = true;
       try {
-        // Usa los miembros y gastos actuales
         const members = this.group.members.map(m => ({
           uid: m.id || m.uid,
           name: m.name,
@@ -419,19 +397,22 @@ export default {
     
     async addMember() {
       if (!this.newMemberEmail) return;
-      
       this.isAddingMember = true;
       try {
-        const response = await groupService.addGroupMember(this.group.id, { email: this.newMemberEmail });
-        this.group.members.push(response.data);
+        // CORRECTO: usa addMember y pasa el email como segundo parámetro
+        const member = await groupService.addMember(this.group.id, this.newMemberEmail);
+        this.group.members.push(member);
         this.newMemberEmail = '';
         this.showAddMemberModal = false;
       } catch (error) {
-        console.error('Error al añadir miembro', error);
-      } finally {
-        this.isAddingMember = false;
+        if (error.message.includes('Usuario no encontrado')) {
+          this.error = 'El usuario no existe. Debe registrarse primero en Groupay.';
+        } else {
+          this.error = error.message || 'Error al añadir miembro';
+        }
       }
     },
+    
     canRemoveMember(memberId) {
       return memberId !== this.group.createdBy && memberId !== this.currentUserId;
     },
