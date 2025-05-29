@@ -9,12 +9,14 @@
           <div class="summary-value">{{ groups?.length || 0 }}</div>
           <router-link to="/groups" class="summary-link">Ver todos</router-link>
         </div>
-        <div class="summary-card">
+       <div class="summary-card">
           <h3>Balance Total</h3>
-          <div class="summary-value" :class="{'positive': totalBalance >= 0, 'negative': totalBalance < 0}">
-            {{ formatCurrency(totalBalance) }}
+          <div class="summary-value" :class="{'positive': totalUserExpenses >= 0, 'negative': totalUserExpenses < 0}">
+            {{ formatCurrency(totalUserExpenses) }}
           </div>
+          
         </div>
+
         <div class="summary-card">
           <h3>Gastos Recientes</h3>
           <div class="summary-value">{{ recentExpenses?.length || 0 }}</div>
@@ -103,19 +105,60 @@ export default {
     this.fetchDashboardData();
   },
   methods: {
-    async fetchDashboardData() {
-      this.isLoading = true;
-      try {
-        const groupsResponse = await groupService.getGroups();
-        this.groups = Array.isArray(groupsResponse) ? groupsResponse : [];
-        // Aquí puedes cargar recentExpenses y activities si tienes esos servicios
-      } catch (error) {
-        console.error('Error al cargar datos del dashboard', error);
-        this.groups = [];
-      } finally {
-        this.isLoading = false;
+   async fetchDashboardData() {
+    this.isLoading = true;
+    try {
+
+      const userId = this.$store?.user?.uid || (await import('@/services/firebase')).auth.currentUser?.uid;
+      const groupsResponse = await groupService.getGroups();
+      this.groups = Array.isArray(groupsResponse) ? groupsResponse : [];
+
+      let totalUserExpenses = 0;
+      for (const group of this.groups) {
+        const expenses = await groupService.getGroupExpenses(group.id);
+        // Suma solo los gastos pagados por el usuario logueado
+        totalUserExpenses += expenses
+          .filter(exp => exp.paidBy === userId)
+          .reduce((sum, exp) => sum + (parseFloat(exp.amount) || 0), 0);
       }
-    },
+      this.totalUserExpenses = totalUserExpenses;
+
+
+      let allExpenses = [];
+      for (const group of this.groups) {
+        const expenses = await groupService.getGroupExpenses(group.id);
+        allExpenses.push(...expenses.map(exp => ({
+          ...exp,
+          groupName: group.name
+        })));
+      }
+      allExpenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      this.recentExpenses = allExpenses.slice(0, 3);
+      this.activities = this.recentExpenses.map(exp => {
+        const group = this.groups.find(g => g.id === exp.groupId);
+        let paidByName = exp.paidBy;
+        if (group && group.members) {
+          const member = group.members.find(m => m.id === exp.paidBy);
+          paidByName = member ? (member.name || member.email) : exp.paidBy;
+        }
+        return {
+          type: 'expense',
+          text: `${paidByName} añadió un gasto de ${this.formatCurrency(exp.amount)} en "${group ? group.name : ''}": ${exp.description}`,
+          date: exp.date
+        };
+      });
+
+
+    } catch (error) {
+      console.error('Error al cargar datos del dashboard', error);
+      this.groups = [];
+      this.recentExpenses = [];
+      this.activities = [];
+    } finally {
+      this.isLoading = false;
+    }
+  },
     formatCurrency(amount) {
       return new Intl.NumberFormat('es-ES', {
         style: 'currency',
@@ -131,7 +174,6 @@ export default {
       });
     },
     getActivityIcon(type) {
-      // Personaliza según tus iconos
       const icons = {
         expense: 'fas fa-receipt',
         group: 'fas fa-users',
@@ -144,7 +186,6 @@ export default {
       this.$router.push(`/groups/${groupId}`);
     },
     createGroup(groupData) {
-      // Lógica para crear grupo y refrescar lista
       this.showCreateGroupModal = false;
       this.fetchDashboardData();
     }
