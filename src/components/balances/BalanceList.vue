@@ -8,7 +8,33 @@
   <i class="fas fa-balance-scale empty-icon"></i>
   <h3>No hay balances que mostrar</h3>
   <p>Añade gastos para ver los balances entre los miembros</p>
+</div> 
+<div class="balance-items">
+  <div
+    v-for="balance in balances"
+    :key="balance.userId"
+    class="balance-item"
+    :class="{
+      'debt': balance.amount < 0,
+      'credit': balance.amount > 0,
+      'neutral': balance.amount === 0
+    }"
+  >
+    <div class="balance-user">
+      <span class="user-name">{{ balance.userName }}</span>
+    </div>
+    <div class="balance-details">
+      <span v-if="balance.amount > 0" class="positive">
+        Le deben <strong>{{ formatCurrency(balance.amount) }}</strong>
+      </span>
+      <span v-else-if="balance.amount < 0" class="negative">
+        Debe <strong>{{ formatCurrency(Math.abs(balance.amount)) }}</strong>
+      </span>
+      <span v-else class="neutral">Al día</span>
+    </div>
+  </div>
 </div>
+
   <div class="balance-list">
     <h3>Balances del Grupo</h3>
     
@@ -63,6 +89,22 @@
       </div>
     </div>
   </div>
+  <div class="settlement-suggestions">
+  <h4>Sugerencias de Pago</h4>
+  <div v-if="localSettlements.length === 0" class="empty-settlements">
+    <p>No hay pagos pendientes entre los miembros</p>
+  </div>
+  <div v-else class="settlement-items">
+    <div v-for="(settlement, index) in localSettlements" :key="index" class="settlement-item">
+      <span class="settlement-text">
+        <strong>{{ settlement.from }}</strong> debe pagar 
+        <strong>{{ formatCurrency(settlement.amount) }}</strong> a 
+        <strong>{{ settlement.to }}</strong>
+      </span>
+    </div>
+  </div>
+</div>
+
 </template>
 
 <script>

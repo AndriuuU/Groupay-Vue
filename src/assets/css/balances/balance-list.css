@@ -85,4 +85,27 @@
   .settlement-item:last-child {
     border-bottom: none;
   }
-  
+  .balance-item.debt {
+  background: rgba(231, 76, 60, 0.06);
+  border-left: 4px solid var(--error-color);
+}
+.balance-item.credit {
+  background: rgba(46, 204, 113, 0.06);
+  border-left: 4px solid var(--success-color);
+}
+.balance-item.neutral {
+  background: var(--secondary-color);
+  border-left: 4px solid var(--border-color);
+}
+.balance-details {
+  font-weight: 600;
+}
+.positive {
+  color: var(--success-color);
+}
+.negative {
+  color: var(--error-color);
+}
+.neutral {
+  color: var(--text-light);
+}
