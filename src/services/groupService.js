@@ -5,7 +5,6 @@ export default {
   async createGroup(groupData) {
     try {
       const user = auth.currentUser;
-      // Asegúrate de que el usuario tenga displayName y email
       const member = {
         id: user.uid,
         name: user.displayName || user.email,
@@ -15,7 +14,7 @@ export default {
         ...groupData,
         createdBy: user.uid,
         createdAt: new Date(),
-        members: [member] // Aquí guardas el objeto completo
+        members: [member] 
       });
       return { id: docRef.id, ...groupData, members: [member] };
     } catch (error) {
