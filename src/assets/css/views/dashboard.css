@@ -20,6 +20,7 @@
     padding: 20px;
     box-shadow: var(--box-shadow);
     text-align: center;
+    width: 100%;
   }
   
   .summary-card h3 {

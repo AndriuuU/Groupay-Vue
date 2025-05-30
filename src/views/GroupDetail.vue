@@ -1,16 +1,15 @@
-
 <template>
   <div class="group-detail-page">
     <div v-if="isLoading" class="loading-container">
       <div class="spinner"></div>
       <p>Cargando grupo...</p>
     </div>
-    
+
     <div v-else-if="!group" class="error-container">
       <p>El grupo no existe o no tienes acceso</p>
       <router-link to="/groups" class="btn btn-primary">Volver a mis grupos</router-link>
     </div>
-    
+
     <div v-else class="group-container">
       <div class="group-header">
         <h1>{{ group.name }}</h1>
@@ -27,11 +26,11 @@
           </button>
         </div>
       </div>
-      
+
       <div class="group-summary">
         <div class="summary-card">
           <h3>Balance Total</h3>
-          <div class="balance" :class="{'positive': userBalance >= 0, 'negative': userBalance < 0}">
+          <div class="balance" :class="{ 'positive': userBalance >= 0, 'negative': userBalance < 0 }">
             <span v-if="userBalance > 0">Te deben: {{ formatCurrency(userBalance) }}</span>
             <span v-else-if="userBalance < 0">Debes: {{ formatCurrency(Math.abs(userBalance)) }}</span>
             <span v-else>Estás al día</span>
@@ -46,72 +45,41 @@
           <div class="members-count">{{ group.members.length }}</div>
         </div>
       </div>
-      
+
       <div class="tabs">
-        <button 
-          class="tab-btn" 
-          :class="{'active': activeTab === 'expenses'}" 
-          @click="activeTab = 'expenses'"
-        >
+        <button class="tab-btn" :class="{ 'active': activeTab === 'expenses' }" @click="activeTab = 'expenses'">
           Gastos
         </button>
-        <button 
-          class="tab-btn" 
-          :class="{'active': activeTab === 'balances'}" 
-          @click="activeTab = 'balances'"
-        >
+        <button class="tab-btn" :class="{ 'active': activeTab === 'balances' }" @click="activeTab = 'balances'">
           Balances
         </button>
-        <button 
-          class="tab-btn" 
-          :class="{'active': activeTab === 'members'}" 
-          @click="activeTab = 'members'"
-        >
+        <button class="tab-btn" :class="{ 'active': activeTab === 'members' }" @click="activeTab = 'members'">
           Miembros
         </button>
       </div>
-      
+
       <div v-if="activeTab === 'expenses'" class="tab-content">
-        <expense-list 
-          :expenses="expenses" 
-          :members="group.members"
-          :groupId="group.id"
-          :isLoading="isLoadingExpenses"
-          @edit-expense="editExpense"
-          @delete-expense="deleteExpense"
-        />
+        <expense-list :expenses="expenses" :members="group.members" :groupId="group.id" :isLoading="isLoadingExpenses"
+          @edit-expense="editExpense" @delete-expense="deleteExpense" />
       </div>
-      
+
       <div v-if="activeTab === 'balances'" class="tab-content">
-        <balance-list 
-          :balances="balances" 
-          :settlements="settlements"
-          :currentUserId="currentUserId"
-          :isLoading="isLoadingBalances"
-        />
+        <balance-list :balances="balances" :settlements="settlements" :currentUserId="currentUserId"
+          :isLoading="isLoadingBalances" />
       </div>
-      
+
       <div v-if="activeTab === 'members'" class="tab-content">
         <div class="members-list">
           <h3>Miembros del Grupo</h3>
           <div v-for="member in group.members" :key="member.id" class="member-item">
             <div class="member-info">
-  <img 
-    v-if="member.avatar" 
-    :src="member.avatar" 
-    alt="Avatar de miembro" 
-    class="member-avatar"
-  >
-  <span class="member-name">{{ member.name }}</span>
-  <span v-if="member.id === group.createdBy" class="member-badge">Creador</span>
-</div>
-
+              <img v-if="member.avatar" :src="member.avatar" alt="Avatar de miembro" class="member-avatar">
+              <span class="member-name">{{ member.name }}</span>
+              <span class="member-email">{{ member.email }}</span>
+              <span v-if="member.id === group.createdBy" class="member-badge">Creador</span>
+            </div>
             <div class="member-actions">
-              <button 
-                v-if="canRemoveMember(member.id)" 
-                class="btn-icon btn-danger" 
-                @click="removeMember(member.id)"
-              >
+              <button v-if="canRemoveMember(member.id)" class="btn-icon btn-danger" @click="removeMember(member.id)">
                 <i class="fas fa-times"></i>
               </button>
             </div>
@@ -124,34 +92,25 @@
           <h3>Añadir Nuevo Gasto</h3>
         </template>
         <template #body>
-          <expense-form 
-            :groupId="group.id" 
-            :members="group.members"
-            @expense-created="addExpense"
-            @cancel="showAddExpenseModal = false" 
-          />
+          <expense-form :groupId="group.id" :members="group.members" @expense-created="addExpense"
+            @cancel="showAddExpenseModal = false" />
         </template>
-      </modal>  
+      </modal>
 
 
-      
+
       <modal v-if="showEditExpenseModal" @close="showEditExpenseModal = false">
         <template #header>
           <h3>Editar Gasto</h3>
         </template>
         <template #body>
-          <expense-form 
-            :expense="currentExpense" 
-            :groupId="group.id" 
-            :members="group.members"
-            @expense-updated="updateExpense" 
-            @cancel="showEditExpenseModal = false" 
-          />
+          <expense-form :expense="currentExpense" :groupId="group.id" :members="group.members"
+            @expense-updated="updateExpense" @cancel="showEditExpenseModal = false" />
         </template>
       </modal>
 
 
-      
+
       <modal v-if="showAddMemberModal" @close="showAddMemberModal = false">
         <template #header>
           <h3>Añadir Miembro al Grupo</h3>
@@ -163,11 +122,7 @@
               <input type="email" id="member-email" v-model="newMemberEmail" required>
             </div>
             <div class="form-actions">
-              <button 
-                class="btn btn-primary" 
-                @click="addMember" 
-                :disabled="isAddingMember"
-              >
+              <button class="btn btn-primary" @click="addMember" :disabled="isAddingMember">
                 {{ isAddingMember ? 'Añadiendo...' : 'Añadir Miembro' }}
               </button>
               <button class="btn btn-secondary" @click="showAddMemberModal = false">
@@ -177,17 +132,13 @@
           </div>
         </template>
       </modal>
-      
+
       <modal v-if="showGroupSettings" @close="showGroupSettings = false">
         <template #header>
           <h3>Configuración del Grupo</h3>
         </template>
         <template #body>
-          <group-form 
-            :group="group" 
-            @submit="updateGroup" 
-            @cancel="showGroupSettings = false" 
-          />
+          <group-form :group="group" @submit="updateGroup" @cancel="showGroupSettings = false" />
           <div class="danger-zone">
             <h4>Zona de Peligro</h4>
             <button class="btn btn-danger" @click="confirmDeleteGroup">
@@ -259,16 +210,16 @@ export default {
       this.isLoading = true;
       try {
         this.group = await groupService.getGroup(groupId);
-        
+
         const expensesRaw = await expenseService.getGroupExpenses(groupId);
         this.expenses = expensesRaw.map(expense => ({
           ...expense,
           paid_by: this.group.members.find(m => m.id === expense.paidBy) || { name: 'Desconocido' },
-          participants: (expense.participants || []).map(pid => 
+          participants: (expense.participants || []).map(pid =>
             this.group.members.find(m => m.id === pid) || { name: 'Desconocido' }
           )
         }));
-        
+
         await this.fetchBalances();
         this.isLoading = false;
       } catch (error) {
@@ -291,7 +242,7 @@ export default {
         this.isLoadingExpenses = false;
       }
     },
-   async addExpense(expenseData) {
+    async addExpense(expenseData) {
       try {
         await expenseService.createExpense(this.group.id, expenseData);
         await this.fetchGroupData(); // Recarga datos y recalcula balances
@@ -306,23 +257,23 @@ export default {
       this.showEditExpenseModal = true;
     },
     async updateExpense(expenseData) {
-  try {
-    if (!this.currentExpense || !this.currentExpense.id) {
-      console.error('ID del gasto no definido.');
-      return;
-    }
-    const response = await expenseService.updateExpense(this.currentExpense.id, expenseData);
-    const index = this.expenses.findIndex(e => e.id === this.currentExpense.id);
-    if (index !== -1) {
-      this.expenses[index] = response.data;
-    }
-    this.showEditExpenseModal = false;
-    this.currentExpense = null;
-    this.fetchBalances();
-  } catch (error) {
-    console.error('Error al actualizar gasto', error);
-  }
-},
+      try {
+        if (!this.currentExpense || !this.currentExpense.id) {
+          console.error('ID del gasto no definido.');
+          return;
+        }
+        const response = await expenseService.updateExpense(this.currentExpense.id, expenseData);
+        const index = this.expenses.findIndex(e => e.id === this.currentExpense.id);
+        if (index !== -1) {
+          this.expenses[index] = response.data;
+        }
+        this.showEditExpenseModal = false;
+        this.currentExpense = null;
+        this.fetchBalances();
+      } catch (error) {
+        console.error('Error al actualizar gasto', error);
+      }
+    },
     async deleteExpense(expenseId) {
       try {
         await expenseService.deleteExpense(expenseId);
@@ -333,7 +284,7 @@ export default {
       }
     },
 
-   async fetchBalances() {
+    async fetchBalances() {
       this.isLoadingBalances = true;
       try {
         const members = this.group.members.map(m => ({
@@ -363,7 +314,7 @@ export default {
         this.isLoadingBalances = false;
       }
     },
-        
+
     calculateSettlements(balances) {
       const users = balances.map(balance => ({ id: balance.userId, name: balance.userName, amount: balance.amount }));
       const debtors = users.filter(user => user.amount < 0);
@@ -394,12 +345,11 @@ export default {
 
       return settlements;
     },
-    
+
     async addMember() {
       if (!this.newMemberEmail) return;
       this.isAddingMember = true;
       try {
-        // CORRECTO: usa addMember y pasa el email como segundo parámetro
         const member = await groupService.addMember(this.group.id, this.newMemberEmail);
         this.group.members.push(member);
         this.newMemberEmail = '';
@@ -412,13 +362,13 @@ export default {
         }
       }
     },
-    
+
     canRemoveMember(memberId) {
       return memberId !== this.group.createdBy && memberId !== this.currentUserId;
     },
     async removeMember(memberId) {
       if (!confirm('¿Estás seguro de que quieres eliminar a este miembro del grupo?')) return;
-      
+
       try {
         await groupService.removeGroupMember(this.group.id, memberId);
         this.group.members = this.group.members.filter(member => member.id !== memberId);
@@ -461,5 +411,4 @@ export default {
 <style scoped>
 @import '../assets/css/views/group-detail.css';
 @import '../assets/css/expenses/expense-list.css';
-
 </style>
