@@ -11,11 +11,14 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import sendEmail from "../utils/sendEmail";
+//import sendEmail from "../utils/sendEmail";
 
 export default {
   async createGroup(groupData) {
     try {
+      if (!groupData || !groupData.name || groupData.name.trim() === "") {
+        throw new Error("El nombre del grupo es obligatorio");
+      }
       const user = auth.currentUser;
       const member = {
         id: user.uid,
@@ -30,7 +33,7 @@ export default {
       });
       return { id: docRef.id, ...groupData, members: [member] };
     } catch (error) {
-      throw new Error("Error al crear grupo: " + error.message);
+
     }
   },
 
