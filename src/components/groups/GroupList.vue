@@ -31,12 +31,7 @@
     </div>
 
     <div v-else class="groups-grid">
-      <group-item 
-        v-for="group in groups" 
-        :key="group.id" 
-        :group="group"
-        @click="navigateToGroup(group.id)"
-      />
+      <group-item v-for="group in groups" :key="group.id" :group="group" @click="navigateToGroup(group.id)" />
     </div>
 
     <modal v-if="showCreateGroupModal" @close="showCreateGroupModal = false">
@@ -44,10 +39,7 @@
         <h3>Crear Nuevo Grupo</h3>
       </template>
       <template #body>
-        <group-form 
-          @submit="createGroup" 
-          @cancel="showCreateGroupModal = false" 
-        />
+        <group-form @submit="createGroup" @cancel="showCreateGroupModal = false" />
       </template>
     </modal>
   </div>
@@ -59,6 +51,7 @@ import GroupForm from './GroupForm.vue';
 import Modal from '../common/Modal.vue';
 import groupService from '../../services/groupService';
 import { auth } from '../../services/firebase';
+import { useToast } from 'vue-toast-notification';
 
 export default {
   name: 'GroupList',
@@ -78,14 +71,14 @@ export default {
   created() {
     this.fetchGroups();
   },
-  methods: {// En el método fetchGroups
+  methods: {
     async fetchGroups() {
       this.isLoading = true;
       this.error = null;
 
       try {
         const groups = await groupService.getGroups();
-        
+
         const groupsWithDetails = await Promise.all(
           groups.map(async (group) => {
             // Usar el nuevo método de Firestore
@@ -93,7 +86,7 @@ export default {
             return {
               ...group,
               gastos: expenses,
-              members: group.members 
+              members: group.members
             };
           })
         );
@@ -114,7 +107,7 @@ export default {
       try {
         // Obtener grupos desde Firebase
         const groups = await groupService.getGroups();
-        
+
         // Obtener detalles adicionales para cada grupo
         const groupsWithDetails = await Promise.all(
           groups.map(async (group) => {
@@ -137,18 +130,19 @@ export default {
     },
 
     async createGroup(groupData) {
+      const $toast = useToast();
       try {
         const newGroup = {
           ...groupData,
           createdBy: auth.currentUser.uid,
           members: [auth.currentUser.uid]
         };
-        
         await groupService.createGroup(newGroup);
         await this.fetchGroups();
         this.showCreateGroupModal = false;
+        $toast.success('¡Grupo creado correctamente!');
       } catch (error) {
-        console.error('Error al crear grupo:', error);
+        $toast.error('Error al crear el grupo. Verifica los datos.');
         this.error = 'Error al crear el grupo. Verifica los datos.';
       }
     },

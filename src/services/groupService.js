@@ -11,7 +11,6 @@ import {
   query,
   where,
 } from "firebase/firestore";
-//import sendEmail from "../utils/sendEmail";
 
 export default {
   async createGroup(groupData) {
@@ -32,9 +31,7 @@ export default {
         members: [member],
       });
       return { id: docRef.id, ...groupData, members: [member] };
-    } catch (error) {
-
-    }
+    } catch (error) {}
   },
 
   async getGroups() {
@@ -100,13 +97,39 @@ export default {
         to: member.email,
         subject: "¡Te han añadido a un grupo en Groupay!",
         text: `Hola ${member.name}, has sido añadido al grupo "${group.name}".`,
+        html: `<p>Hola ${member.name},<br>Has sido añadido al grupo <b>${group.name}</b> en Groupay.</p>`,
       });
       return member;
     } catch (error) {
       throw new Error("Error al añadir miembro: " + error.message);
     }
   },
+  async removeGroupMember(groupId, memberId) {
+    try {
+      // Obtén el documento del grupo
+      const groupRef = doc(db, "groups", groupId);
+      const groupSnap = await getDoc(groupRef);
+      if (!groupSnap.exists()) throw new Error("El grupo no existe");
 
+      const groupData = groupSnap.data();
+      // Filtra el miembro a eliminar
+      const updatedMembers = (groupData.members || []).filter(
+        (m) => m.id !== memberId
+      );
+      await sendEmail({
+        to: member.email,
+        subject: "Has sido expulsado de un grupo en Groupay",
+        text: `Hola ${member.name}, has sido eliminado del grupo "${group.name}".`,
+        html: `<p>Hola ${member.name},<br>Has sido eliminado del grupo <b>${group.name}</b> en Groupay.</p>`,
+      });
+
+      // Actualiza el grupo en Firestore
+      await updateDoc(groupRef, { members: updatedMembers });
+      return true;
+    } catch (error) {
+      throw new Error("Error al eliminar miembro: " + error.message);
+    }
+  },
   async getGroupExpenses(groupId) {
     try {
       const expensesRef = collection(db, "expenses");
@@ -120,6 +143,7 @@ export default {
       throw new Error("Error al obtener gastos del grupo: " + error.message);
     }
   },
+  /*
   async addMember(groupId, email) {
     try {
       // Buscar usuario por email
@@ -150,6 +174,9 @@ export default {
       throw new Error("Error al añadir miembro: " + error.message);
     }
   },
+
+  */
+
   async deleteGroup(groupId) {
     try {
       await deleteDoc(doc(db, "groups", groupId));

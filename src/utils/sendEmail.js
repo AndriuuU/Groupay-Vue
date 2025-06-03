@@ -7,8 +7,8 @@ admin.initializeApp();
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'TU_CORREO@gmail.com',
-    pass: 'TU_CONTRASEÑA_O_APP_PASSWORD'
+    user: 'notify.groupay@gmail.com',
+    pass: 'Molina01$.'
   }
 });
 
@@ -24,7 +24,7 @@ exports.sendEmailOnMemberAdded = functions.firestore
       );
       for (const member of newMembers) {
         await transporter.sendMail({
-          from: '"Groupay" <TU_CORREO@gmail.com>',
+          from: '"Groupay" notify.groupay@gmail.com',
           to: member.email,
           subject: '¡Te han añadido a un grupo en Groupay!',
           html: `<p>Hola ${member.name},<br>Has sido añadido al grupo <b>${after.name}</b> en Groupay.</p>`
@@ -43,7 +43,7 @@ exports.sendEmailOnExpenseAdded = functions.firestore
     for (const member of group.members) {
       if (expense.participants.includes(member.id) && member.id !== expense.paidBy) {
         await transporter.sendMail({
-          from: '"Groupay" <TU_CORREO@gmail.com>',
+          from: '"Groupay" notify.groupay@gmail.com',
           to: member.email,
           subject: 'Nuevo gasto en tu grupo',
           html: `<p>Hola ${member.name},<br>Se ha añadido un nuevo gasto en el grupo <b>${group.name}</b>: <b>${expense.description}</b> por ${expense.amount} €.</p>`
@@ -51,3 +51,24 @@ exports.sendEmailOnExpenseAdded = functions.firestore
       }
     }
   });
+
+  exports.sendEmailHttp = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    if (req.method !== 'POST') {
+      return res.status(405).send('Método no permitido');
+    }
+    const { to, subject, text, html } = req.body;
+    try {
+      await transporter.sendMail({
+        from: '"Groupay" <TU_CORREO@gmail.com>',
+        to,
+        subject,
+        text,
+        html
+      });
+      res.status(200).send('Email enviado');
+    } catch (error) {
+      res.status(500).send('Error al enviar email: ' + error.toString());
+    }
+  });
+});

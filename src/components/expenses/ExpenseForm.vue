@@ -125,8 +125,8 @@ export default {
         amount: parseFloat(this.form.amount),
         date: this.form.date,
         category: this.form.category,
-        paidBy: this.form.paidBy, // string: UID
-        participants: this.form.participants, // array de UID
+        paidBy: this.form.paidBy,
+        participants: this.form.participants, 
       };
       if (this.isEditing) {
         await expenseService.updateExpense(this.expense.id, expenseData);
