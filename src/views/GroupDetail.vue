@@ -53,10 +53,84 @@
         <button class="tab-btn" :class="{ 'active': activeTab === 'balances' }" @click="activeTab = 'balances'">
           Balances
         </button>
+        <button class="tab-btn" :class="{ 'active': activeTab === 'payments' }" @click="activeTab = 'payments'">
+          Pagos
+        </button>
         <button class="tab-btn" :class="{ 'active': activeTab === 'members' }" @click="activeTab = 'members'">
           Miembros
         </button>
       </div>
+      <!-- Añadir una nueva pestaña -->
+
+
+      <!-- Contenido de la pestaña -->
+      <div v-if="activeTab === 'payments'" class="tab-content">
+        <div class="expense-list">
+          <div class="expense-list-header">
+            <h3>Pagos entre miembros</h3>
+
+            <button class="btn btn-primary" @click="showAddPaymentModal = true">
+              <i class="fas fa-money-bill-wave"></i> Registrar Pago
+            </button>
+          </div>
+
+          <modal v-if="showAddPaymentModal" @close="showAddPaymentModal = false">
+            <template #header>
+              <h3>Registrar Pago</h3>
+            </template>
+            <template #body>
+              <payment-form :currentUserId="String(currentUserId)" :groupId="group.id" :members="group.members"
+                @payment-created="fetchPayments" @cancel="showAddPaymentModal = false" />
+            </template>
+          </modal>
+
+          <div v-if="isLoadingPayments" class="loading-container">
+            <div class="spinner"></div>
+            <p>Cargando pagos...</p>
+          </div>
+          <div v-else-if="payments.length === 0" class="empty-state">
+            <i class="fas fa-money-bill-wave empty-icon"></i>
+            <h3>No hay pagos registrados</h3>
+            <p>Cuando un miembro pague a otro, aparecerá aquí.</p>
+          </div>
+          <div v-else class="expense-items">
+            <div v-for="payment in pagosFiltrados" :key="payment.id" class="expense-item">
+              <div class="expense-icon" style="background-color: var(--primary-light)">
+                <i class="fas fa-money-bill-wave"></i>
+              </div>
+              <div class="expense-content">
+                <div class="expense-header">
+                  <h4 class="expense-description">
+                    {{ getMemberName(payment.from) }} pagó a {{ getMemberName(payment.to) }}
+                  </h4>
+                  <span class="expense-amount">{{ formatCurrency(payment.amount) }}</span>
+                </div>
+                <div class="expense-details">
+                  <span class="expense-date">{{ formatDate(payment.date) }}</span>
+                  <span class="expense-status" :class="statusClass(payment.status)">
+                    {{ payment.status === 'pending' ? 'Pendiente' : payment.status === 'confirmed' ? 'Confirmado' :
+                      'Rechazado' }}
+                  </span>
+                </div>
+                <div v-if="payment.comment" class="expense-participants">
+                  <span>Comentario: {{ payment.comment }}</span>
+                </div>
+              </div>
+              <div class="expense-actions" v-if="canConfirm(payment)">
+                <button v-if="payment.status === 'pending'" class="btn-icon" @click="confirmPayment(payment)">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button v-if="payment.status === 'pending'" class="btn-icon btn-danger" @click="rejectPayment(payment)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+
 
       <div v-if="activeTab === 'expenses'" class="tab-content">
         <expense-list :expenses="expenses" :members="group.members" :groupId="group.id" :isLoading="isLoadingExpenses"
@@ -160,6 +234,9 @@ import Modal from '@/components/common/Modal.vue';
 import groupService from '@/services/groupService';
 import expenseService from '@/services/expenseService';
 import { BalanceCalculator } from '../utils/BalanceCalculator';
+import PaymentForm from '@/components/payments/PaymentForm.vue';
+import paymentService from '@/services/paymentService';
+import { useAuthStore } from '@/store/authStore';
 
 
 export default {
@@ -169,7 +246,8 @@ export default {
     ExpenseForm,
     BalanceList,
     GroupForm,
-    Modal
+    Modal,
+    PaymentForm
   },
   data() {
     return {
@@ -182,16 +260,33 @@ export default {
       isLoadingExpenses: false,
       isLoadingBalances: false,
       isAddingMember: false,
+      showAddPaymentModal: false,
       showAddExpenseModal: false,
       showEditExpenseModal: false,
       showAddMemberModal: false,
       showGroupSettings: false,
       currentExpense: null,
       newMemberEmail: '',
-      currentUserId: 1
+      payments: [],
+      isLoadingPayments: false,
     };
   },
+  watch: {
+    activeTab(newTab) {
+      if (newTab === 'payments') {
+        this.fetchPayments();
+      }
+    }
+  },
   computed: {
+    pagosFiltrados() {
+      // Solo pagos con cantidad mayor que 0
+      return this.payments.filter(p => p.amount > 0);
+    },
+    currentUserId() {
+      const authStore = useAuthStore();
+      return authStore.usuarioLogueado ? authStore.usuarioLogueado.id : null;
+    },
     totalExpenses() {
       return this.expenses.reduce((total, expense) => total + expense.amount, 0);
     },
@@ -205,6 +300,58 @@ export default {
     this.fetchGroupData();
   },
   methods: {
+    async fetchPayments() {
+      this.isLoadingPayments = true;
+      try {
+        // Añade este log para depurar
+        console.log('Buscando pagos para groupId:', this.group.id);
+        this.payments = await paymentService.getGroupPayments(this.group.id);
+        console.log('Pagos encontrados:', this.payments);
+      } catch (e) {
+        this.payments = [];
+      } finally {
+        this.isLoadingPayments = false;
+      }
+    },
+    getMemberName(userId) {
+      const member = this.group.members.find(m => m.id === userId);
+      return member ? member.name : 'Desconocido';
+    },
+    formatCurrency(amount) {
+      return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
+    },
+    formatDate(date) {
+      return new Date(date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    },
+    statusClass(status) {
+      return {
+        'positive': status === 'confirmed',
+        'neutral': status === 'pending',
+        'negative': status === 'rejected'
+      };
+    },
+    canConfirm(payment) {
+      // Solo el destinatario puede confirmar/rechazar si el pago está pendiente
+      return payment.status === 'pending' && payment.to === this.currentUserId;
+    },
+    async confirmPayment(payment) {
+      await paymentService.confirmPayment(payment.id);
+      // Aquí deberías crear el gasto settlement (ver instrucciones anteriores)
+      await expenseService.createExpense(payment.groupId, {
+        description: 'Pago entre miembros',
+        amount: payment.amount,
+        date: payment.date,
+        category: 'settlement',
+        paidBy: payment.from,
+        participants: [payment.from, payment.to]
+      });
+      this.fetchPayments();
+      this.fetchExpenses(); // Para refrescar balances y gastos
+    },
+    async rejectPayment(payment) {
+      await paymentService.rejectPayment(payment.id);
+      this.fetchPayments();
+    },
     async fetchGroupData() {
       const groupId = this.$route.params.id;
       this.isLoading = true;
@@ -221,6 +368,10 @@ export default {
         }));
 
         await this.fetchBalances();
+
+        if (this.activeTab === 'payments') {
+          this.fetchPayments();
+        }
         this.isLoading = false;
       } catch (error) {
         this.isLoading = false;

@@ -111,4 +111,40 @@
   .category-other i {
     color: #95a5a6;
   }
-  
+  /* Estado pendiente: amarillo */
+.payment-item.payment-pending {
+  background-color: var(--warning-color, #fdf6e3);
+  border-left: 4px solid var(--warning-color, #f39c12);
+}
+
+/* Estado confirmado: verde */
+.payment-item.payment-confirmed {
+  background-color: var(--primary-light, #a9dfbf);
+  border-left: 4px solid var(--success-color, #2ecc71);
+}
+
+/* Estado rechazado: rojo claro */
+.payment-item.payment-rejected {
+  background-color: rgba(231, 76, 60, 0.08);
+  border-left: 4px solid var(--error-color, #e74c3c);
+}
+.expense-status {
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.93em;
+  margin-left: 8px;
+  text-transform: capitalize;
+}
+.expense-status.positive {
+  color: var(--success-color);
+  background: rgba(46, 204, 113, 0.12);
+}
+.expense-status.neutral {
+  color: var(--warning-color);
+  background: rgba(243, 156, 18, 0.12);
+}
+.expense-status.negative {
+  color: var(--error-color);
+  background: rgba(231, 76, 60, 0.12);
+}
