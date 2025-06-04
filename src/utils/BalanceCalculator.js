@@ -22,26 +22,29 @@ export class BalanceCalculator {
     }
   
     // Calcula los balances generales
-    calculateBalances() {
-      this.expenses.forEach(expense => {
-        const share = expense.amount / expense.participants.length;
-        
-        // Actualizar el que pagó
-        this.balances[expense.paidBy].totalPaid += expense.amount;
-        this.balances[expense.paidBy].balance += expense.amount - share;
-        
-        // Actualizar los participantes
-        expense.participants.forEach(participantId => {
-          if (participantId !== expense.paidBy) {
-            this.balances[participantId].totalOwed += share;
-            this.balances[participantId].balance -= share;
-          }
-        });
-      });
-  
-      return this.#formatBalances();
-    }
-  
+calculateBalances() {
+  // Reinicia balances
+  this.balances = this.#initializeBalances();
+
+  this.expenses.forEach(expense => {
+    const share = expense.amount / expense.participants.length;
+
+    // Suma lo pagado al pagador
+    this.balances[expense.paidBy].totalPaid += expense.amount;
+
+    // A cada participante le suma lo que le corresponde pagar
+    expense.participants.forEach(participantId => {
+      this.balances[participantId].totalOwed += share;
+    });
+  });
+
+  // Calcula el balance final de cada usuario
+  Object.values(this.balances).forEach(user => {
+    user.balance = parseFloat((user.totalPaid - user.totalOwed).toFixed(2));
+  });
+
+  return this.#formatBalances();
+}
     // Calcula la forma óptima de saldar deudas (algoritmo greedy)
     calculateSettlements() {
       const balances = this.calculateBalances();

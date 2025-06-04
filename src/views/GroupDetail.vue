@@ -81,6 +81,7 @@
             <template #body>
               <payment-form :currentUserId="String(currentUserId)" :groupId="group.id" :members="group.members"
                 @payment-created="fetchPayments" @cancel="showAddPaymentModal = false" />
+
             </template>
           </modal>
 
@@ -105,8 +106,9 @@
                   </h4>
                   <span class="expense-amount">{{ formatCurrency(payment.amount) }}</span>
                 </div>
+
                 <div class="expense-details">
-                  <span class="expense-date">{{ formatDate(payment.date) }}</span>
+                  <span class="expense-date">{{ formatDate(payment.date) }} </span>
                   <span class="expense-status" :class="statusClass(payment.status)">
                     {{ payment.status === 'pending' ? 'Pendiente' : payment.status === 'confirmed' ? 'Confirmado' :
                       'Rechazado' }}
@@ -117,8 +119,9 @@
                 </div>
               </div>
               <div class="expense-actions" v-if="canConfirm(payment)">
-                <button v-if="payment.status === 'pending'" class="btn-icon" @click="confirmPayment(payment)">
-                  <i class="fas fa-check"></i>
+                <button v-if="payment.status === 'pending' && payment.to === currentUserId" class="btn btn-primary"
+                  @click="confirmPayment(payment.id)">
+                  Confirmar recibido
                 </button>
                 <button v-if="payment.status === 'pending'" class="btn-icon btn-danger" @click="rejectPayment(payment)">
                   <i class="fas fa-times"></i>
@@ -141,6 +144,7 @@
         <balance-list :balances="balances" :settlements="settlements" :currentUserId="currentUserId"
           :isLoading="isLoadingBalances" />
       </div>
+
 
       <div v-if="activeTab === 'members'" class="tab-content">
         <div class="members-list">

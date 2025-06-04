@@ -64,6 +64,9 @@
         </div>
       </div>
     </div>
+     <button class="add-expense-btn" @click="$emit('add-expense')">
+      <i class="fas fa-plus"></i> Añadir gasto
+    </button>
   </div>
 
 </template>
