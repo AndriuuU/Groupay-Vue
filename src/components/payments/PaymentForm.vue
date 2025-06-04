@@ -4,6 +4,14 @@
         <div v-if="error" class="alert alert-danger">{{ error }}</div>
         <form @submit.prevent="submitForm">
             <div class="form-group">
+                <label for="from">De</label>
+                <select v-model="form.from" required>
+                    <option v-for="member in members" :key="member.id" :value="member.id">
+                        {{ member.name }} ({{ member.email }})
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="to">Para</label>
                 <select v-model="form.to" required>
                     <option v-if="filteredMembers.length === 0" disabled value="">
@@ -15,6 +23,7 @@
                 </select>
 
             </div>
+
             <div class="form-group">
                 <label for="amount">Cantidad (€)</label>
                 <input type="number" id="amount" v-model="form.amount" min="0.01" step="0.01" required />
@@ -57,6 +66,7 @@ export default {
     data() {
         return {
             form: {
+                from: this.currentUserId,
                 to: '',
                 amount: '',
                 date: new Date().toISOString().substr(0, 10),

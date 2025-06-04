@@ -10,6 +10,7 @@ import NotFound from '../views/NotFound.vue';
 import Profile from '../views/Profile.vue';
 import GroupList from '../components/groups/GroupList.vue';
 import ExpensesList from '../views/ExpensesList.vue';
+import Statistics from '../views/Statistics.vue';
 
 const routes = [
   {
@@ -65,7 +66,13 @@ const routes = [
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: NotFound
-  }
+  },
+  {
+    path: '/statistics',
+    name: 'statistics',
+    component: Statistics,
+    meta: { requiresAuth: true }
+  },
 ];
 
 const router = createRouter({

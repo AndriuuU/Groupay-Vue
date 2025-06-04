@@ -61,10 +61,13 @@
         </button>
       </div>
       <!-- Añadir una nueva pestaña -->
+<GroupStatistics :expenses="expenses" :members="group.members" />
 
 
       <!-- Contenido de la pestaña -->
       <div v-if="activeTab === 'payments'" class="tab-content">
+        <GroupStatistics :expenses="expenses" :members="group.members" />
+
         <div class="expense-list">
           <div class="expense-list-header">
             <h3>Pagos entre miembros</h3>
@@ -101,19 +104,19 @@
               </div>
               <div class="expense-content">
                 <div class="expense-header">
-                  <h4 class="expense-description">
-                    {{ getMemberName(payment.from) }} pagó a {{ getMemberName(payment.to) }}
-                  </h4>
-                  <span class="expense-amount">{{ formatCurrency(payment.amount) }}</span>
-                </div>
+                  <strong>{{ getMemberName(payment.from) }}</strong> pagó a <strong>{{ getMemberName(payment.to)
+                    }}</strong>
 
+                </div>
+                <span class="expense-amount">{{ formatCurrency(payment.amount) }}</span>
                 <div class="expense-details">
                   <span class="expense-date">{{ formatDate(payment.date) }} </span>
-                  <span class="expense-status" :class="statusClass(payment.status)">
-                    {{ payment.status === 'pending' ? 'Pendiente' : payment.status === 'confirmed' ? 'Confirmado' :
-                      'Rechazado' }}
-                  </span>
+
                 </div>
+                <span class="expense-status" :class="statusClass(payment.status)">
+                  {{ payment.status === 'pending' ? 'Pendiente' : payment.status === 'confirmed' ? 'Confirmado' :
+                    'Rechazado' }}
+                </span>
                 <div v-if="payment.comment" class="expense-participants">
                   <span>Comentario: {{ payment.comment }}</span>
                 </div>
@@ -141,6 +144,8 @@
       </div>
 
       <div v-if="activeTab === 'balances'" class="tab-content">
+        <GroupStatistics :expenses="expenses" :members="group.members" />
+
         <balance-list :balances="balances" :settlements="settlements" :currentUserId="currentUserId"
           :isLoading="isLoadingBalances" />
       </div>
@@ -241,6 +246,7 @@ import { BalanceCalculator } from '../utils/BalanceCalculator';
 import PaymentForm from '@/components/payments/PaymentForm.vue';
 import paymentService from '@/services/paymentService';
 import { useAuthStore } from '@/store/authStore';
+import GroupStatistics from '@/components/groups/GroupStatistics.vue';
 
 
 export default {
@@ -251,7 +257,8 @@ export default {
     BalanceList,
     GroupForm,
     Modal,
-    PaymentForm
+    PaymentForm,
+    GroupStatistics
   },
   data() {
     return {

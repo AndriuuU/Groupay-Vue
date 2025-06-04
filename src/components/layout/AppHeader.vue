@@ -6,6 +6,8 @@
       <div class="nav-links" v-if="isAuthenticated">
         <router-link to="/dashboard" class="nav-link">Panel</router-link>
         <router-link to="/groups" class="nav-link">Mis Grupos</router-link>
+        <router-link to="/statistics" class="nav-link">Estadísticas</router-link>
+
       </div>
 
       <div class="header-actions">
