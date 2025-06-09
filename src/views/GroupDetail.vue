@@ -61,7 +61,6 @@
         </button>
       </div>
       <!-- Añadir una nueva pestaña -->
-<GroupStatistics :expenses="expenses" :members="group.members" />
 
 
       <!-- Contenido de la pestaña -->

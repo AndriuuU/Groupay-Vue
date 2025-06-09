@@ -73,7 +73,10 @@
 </template>
 
 <script>
+import GroupPieChart from './GroupPieChart.vue'
+
 export default {
+    components: { GroupPieChart },
   name: 'GroupStatistics',
   props: {
     expenses: { type: Array, default: () => [] },
