@@ -65,7 +65,6 @@
 
       <!-- Contenido de la pestaña -->
       <div v-if="activeTab === 'payments'" class="tab-content">
-        <GroupStatistics :expenses="expenses" :members="group.members" />
 
         <div class="expense-list">
           <div class="expense-list-header">
