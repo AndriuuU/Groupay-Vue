@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, watch } from 'vue' 
 import { createPinia } from 'pinia'
 import './assets/css/global.css'
 import App from './App.vue'
@@ -8,6 +8,9 @@ import { useAuthStore } from './store/authStore'
 
 import ToastPlugin from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-bootstrap.css';
+
+import { initNotificationListeners } from './services/notificationService'
+
 
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme) {
@@ -23,7 +26,6 @@ const app = createApp(App)
 app.use(pinia)
 app.use(router)
 app.component('font-awesome-icon', FontAwesomeIcon)
-app.use(createPinia());
 app.use(ToastPlugin, {
   position: 'top-right',
   duration: 4000,
@@ -33,4 +35,15 @@ app.use(ToastPlugin, {
 const authStore = useAuthStore()
 authStore.init()
 
+watch(
+  () => authStore.user,
+  (user) => {
+    if (user) {
+      initNotificationListeners(user.uid)
+    }
+  },
+  { immediate: true }
+)
+
 app.mount('#app')
+
