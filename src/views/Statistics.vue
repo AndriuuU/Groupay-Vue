@@ -32,6 +32,7 @@
       </div>
       <div class="statistics-chart">
         <h4>Evolución Mensual</h4>
+        
         <ul>
           <li v-for="month in monthlyData" :key="month.month">
             <span class="month-label">{{ month.month }}</span>

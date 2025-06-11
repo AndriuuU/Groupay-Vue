@@ -66,6 +66,7 @@
       <!-- Contenido de la pestaña -->
       <div v-if="activeTab === 'payments'" class="tab-content">
 
+
         <div class="expense-list">
           <div class="expense-list-header">
             <h3>Pagos entre miembros</h3>
@@ -75,63 +76,32 @@
             </button>
           </div>
 
-          <modal v-if="showAddPaymentModal" @close="showAddPaymentModal = false">
-            <template #header>
-              <h3>Registrar Pago</h3>
-            </template>
-            <template #body>
-              <payment-form :currentUserId="String(currentUserId)" :groupId="group.id" :members="group.members"
-                @payment-created="fetchPayments" @cancel="showAddPaymentModal = false" />
-
-            </template>
-          </modal>
-
-          <div v-if="isLoadingPayments" class="loading-container">
-            <div class="spinner"></div>
-            <p>Cargando pagos...</p>
-          </div>
-          <div v-else-if="payments.length === 0" class="empty-state">
+          <div class="group-section">
+  <div v-if="isLoadingPayments" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando pagos...</p>
+  </div>
+<div v-else-if="payments.length === 0" class="empty-state">
             <i class="fas fa-money-bill-wave empty-icon"></i>
             <h3>No hay pagos registrados</h3>
             <p>Cuando un miembro pague a otro, aparecerá aquí.</p>
           </div>
-          <div v-else class="expense-items">
-            <div v-for="payment in pagosFiltrados" :key="payment.id" class="expense-item">
-              <div class="expense-icon" style="background-color: var(--primary-light)">
-                <i class="fas fa-money-bill-wave"></i>
-              </div>
-              <div class="expense-content">
-                <div class="expense-header">
-                  <strong>{{ getMemberName(payment.from) }}</strong> pagó a <strong>{{ getMemberName(payment.to)
-                  }}</strong>
+  <div v-else>
+    <PaymentCard
+      v-for="payment in payments"
+      :key="payment.id"
+      :payment="payment"
+      :members="group.members"
+      @confirm="confirmPayment"
+      @reject="rejectPayment"
+    />
+  </div>
 
-                </div>
-                <span class="expense-amount">{{ formatCurrency(payment.amount) }}</span>
-                <div class="expense-details">
-                  <span class="expense-date">{{ formatDate(payment.date) }} </span>
+</div>
 
-                </div>
-                <span class="expense-status" :class="statusClass(payment.status)">
-                  {{ payment.status === 'pending' ? 'Pendiente' : payment.status === 'confirmed' ? 'Confirmado' :
-                    'Rechazado' }}
-                </span>
-                <div v-if="payment.comment" class="expense-participants">
-                  <span>Comentario: {{ payment.comment }}</span>
-                </div>
-              </div>
-              <div class="expense-actions" v-if="canConfirm(payment)">
-                <button v-if="payment.status === 'pending' && payment.to === currentUserId" class="btn btn-primary"
-                  @click="confirmPayment(payment.id)">
-                  Confirmar recibido
-                </button>
-                <button v-if="payment.status === 'pending'" class="btn-icon btn-danger" @click="rejectPayment(payment)">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
+         
 
-            </div>
           </div>
-        </div>
       </div>
 
 
@@ -247,11 +217,12 @@ import PaymentForm from '@/components/payments/PaymentForm.vue';
 import paymentService from '@/services/paymentService';
 import { useAuthStore } from '@/store/authStore';
 import GroupStatistics from '@/components/groups/GroupStatistics.vue';
-
+import PaymentCard from '@/components/payments/PaymentCard.vue'
 
 export default {
   name: 'GroupDetail',
   components: {
+    PaymentCard,
     ExpenseList,
     ExpenseForm,
     BalanceList,
@@ -280,6 +251,7 @@ export default {
       newMemberEmail: '',
       payments: [],
       isLoadingPayments: false,
+      
     };
   },
   watch: {
@@ -309,10 +281,14 @@ export default {
   },
   created() {
     this.fetchGroupData();
+    
+
   },
   methods: {
     async fetchPayments() {
       this.isLoadingPayments = true;
+                this.payments = await paymentService.getGroupPayments(this.group.id)
+
       try {
         // Añade este log para depurar
         console.log('Buscando pagos para groupId:', this.group.id);
