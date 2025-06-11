@@ -12,7 +12,7 @@ Groupay es una aplicación web diseñada para facilitar el seguimiento y gestió
 - **Interfaz Responsiva**: La aplicación está diseñada para ser accesible desde cualquier dispositivo, ya sea un ordenador, tableta o teléfono móvil.
 - **Tema Oscuro y Claro**: Personaliza la apariencia de la aplicación según tus preferencias con temas oscuro y claro.
 
-## Despliegue Público
+## Repositorio
 
 Aquí esta el repositorio: [REPOSITORIO](https://github.com/AndriuuU/Groupay-Vue).
 
