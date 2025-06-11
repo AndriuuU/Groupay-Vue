@@ -17,15 +17,16 @@ const props = defineProps({
   }
 })
 
-// Paleta de colores de tu CSS
+const rootStyles = getComputedStyle(document.documentElement)
+
 const palette = [
-  'var(--primary-color)',
-  'var(--primary-dark)',
-  'var(--primary-light)',
-  'var(--success-color)',
-  'var(--error-color)',
-  'var(--warning-color)',
-  'var(--secondary-color)'
+  rootStyles.getPropertyValue('--primary-color').trim(),
+  rootStyles.getPropertyValue('--primary-dark').trim(),
+  rootStyles.getPropertyValue('--primary-light').trim(),
+  rootStyles.getPropertyValue('--success-color').trim(),
+  rootStyles.getPropertyValue('--error-color').trim(),
+  rootStyles.getPropertyValue('--warning-color').trim(),
+  rootStyles.getPropertyValue('--secondary-color').trim()
 ]
 
 const chartData = computed(() => ({

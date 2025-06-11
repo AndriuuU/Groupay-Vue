@@ -18,11 +18,13 @@
     </div>
 
     <div class="statistics-charts">
-      <!-- Aquí podrías integrar Chart.js o ApexCharts -->
       <div class="statistics-chart">
         <h4>Gasto por Categoría</h4>
         <ul>
+                  <GroupPieChart :categoryData="categoryData" />
+
           <li v-for="cat in categoryData" :key="cat.category">
+            
             <span class="category-label">{{ cat.category }}</span>
             <span class="category-value">{{ formatCurrency(cat.value) }}</span>
           </li>
@@ -74,6 +76,7 @@
 import groupService from '@/services/groupService'
 import expenseService from '@/services/expenseService'
 import { auth } from '@/services/firebase'
+import GroupPieChart from '@/components/groups/GroupPieChart.vue'
 
 export default {
   name: 'Statistics',
@@ -85,6 +88,9 @@ export default {
       isLoading: false,
       error: null
     }
+  },
+  components: {
+    GroupPieChart
   },
   async created() {
     this.isLoading = true
@@ -121,13 +127,13 @@ export default {
         .filter(e => e.paidBy === this.userId)
         .reduce((sum, e) => sum + Number(e.amount), 0)
     },
-    categoryData() {
-      const data = {}
-      this.expenses.forEach(e => {
-        data[e.category] = (data[e.category] || 0) + Number(e.amount)
-      })
-      return Object.entries(data).map(([category, value]) => ({ category, value }))
-    },
+categoryData() {
+    const data = {};
+    this.expenses.forEach(e => {
+      data[e.category] = (data[e.category] || 0) + Number(e.amount);
+    });
+    return Object.entries(data).map(([category, value]) => ({ category, value }));
+  },
     monthlyData() {
       const data = {}
       this.expenses.forEach(e => {
@@ -177,6 +183,7 @@ export default {
   gap: 20px;
   margin-bottom: 40px;
 }
+
 .statistics-card {
   background: var(--white);
   border-radius: var(--border-radius);
