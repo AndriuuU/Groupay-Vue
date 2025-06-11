@@ -17,12 +17,17 @@
             {{ group.members.length }} miembros
           </span>
         </span>
+        
         <span v-else class="group-members">
           <i class="fas fa-users"></i> Sin miembros
         </span>
         <span v-if="group.created_at" class="group-date">
           <i class="far fa-calendar-alt"></i> {{ formatDate(group.created_at) }}
         </span>
+        <span class="group-mode">
+  <i class="fas fa-cogs"></i>
+  {{ group.mode === 'ahorro' ? 'Ahorro conjunto' : 'Gastos compartidos' }}
+</span>
       </div>
     </div>
    <!-- <div class="group-balance" :class="balanceClass">

@@ -12,6 +12,13 @@
         <textarea id="description" v-model="form.description" rows="3"></textarea>
       </div>
       <div class="form-group">
+        <label for="mode">Modo de Grupo</label>
+        <select id="mode" v-model="form.mode">
+          <option value="gastos">Gastos compartidos</option>
+          <option value="ahorro">Ahorro conjunto</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label for="category">Categoría</label>
         <select id="category" v-model="form.category">
           <option value="trip">Viaje</option>
@@ -19,6 +26,7 @@
           <option value="event">Evento</option>
           <option value="project">Proyecto</option>
           <option value="other">Otro</option>
+
         </select>
       </div>
       <div class="form-actions">
@@ -47,7 +55,8 @@ export default {
       form: {
         name: '',
         description: '',
-        category: 'other'
+        category: 'other',
+        mode: 'gastos'
       },
       isLoading: false,
       error: null
