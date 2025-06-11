@@ -1,152 +1,82 @@
 <template>
-    <div class="profile-page">
-      <div class="profile-container">
-        <h1>Mi Perfil</h1>
-        
-        <div v-if="isLoading" class="loading-container">
-          <div class="spinner"></div>
-          <p>Cargando perfil...</p>
+  <div class="profile-page">
+    <div class="profile-card">
+      <h2>Mi Perfil</h2>
+      <div v-if="user">
+        <div class="profile-info">
+          <p><strong>Nombre:</strong> {{ user.displayName || user.name || user.email }}</p>
+          <p><strong>Email:</strong> {{ user.email }}</p>
         </div>
-        
-        <div v-else-if="error" class="alert alert-danger">
-          {{ error }}
-        </div>
-        
-        <form v-else @submit.prevent="updateProfile" class="profile-form">
-          <div class="form-group">
-            <label for="name">Nombre</label>
-            <input type="text" id="name" v-model="user.name" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" v-model="user.email" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="phone">Teléfono</label>
-            <input type="tel" id="phone" v-model="user.phone">
-          </div>
-          
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary" :disabled="isUpdating">
-              {{ isUpdating ? 'Actualizando...' : 'Actualizar Perfil' }}
-            </button>
-          </div>
-        </form>
+        <button class="btn btn-primary" @click="showEdit = true">Editar Perfil</button>
+      </div>
+      <div v-else>
+        <p>No hay usuario autenticado.</p>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import api from '@/services/api';
-  
-  export default {
-    name: 'Profile',
-    data() {
-      return {
-        user: {
-          name: '',
-          email: '',
-          phone: ''
-        },
-        isLoading: true,
-        isUpdating: false,
-        error: null
-      };
-    },
-    created() {
-      this.fetchUserProfile();
-    },
-    methods: {
-      async fetchUserProfile() {
-        try {
-          const response = await api.get('/user');
-          this.user = response.data;
-          this.isLoading = false;
-        } catch (error) {
-          this.error = 'Error al cargar el perfil de usuario';
-          this.isLoading = false;
-        }
-      },
-      async updateProfile() {
-        this.isUpdating = true;
-        try {
-          await api.put('/user', this.user);
-          this.$router.push('/dashboard');
-        } catch (error) {
-          this.error = 'Error al actualizar el perfil';
-        } finally {
-          this.isUpdating = false;
-        }
-      }
+
+    <modal v-if="showEdit" @close="showEdit = false">
+      <template #header>
+        <h3>Editar Perfil</h3>
+      </template>
+      <template #body>
+        <form @submit.prevent="saveProfile">
+          <div class="form-group">
+            <label for="name">Nombre</label>
+            <input id="name" v-model="editForm.name" required />
+          </div>
+          <button class="btn btn-primary" type="submit">Guardar</button>
+        </form>
+      </template>
+    </modal>
+  </div>
+</template>
+
+<script>
+import { useAuthStore } from '@/store/authStore'
+import Modal from '@/components/common/Modal.vue'
+import { ref, computed } from 'vue'
+import { updateProfile } from 'firebase/auth'
+import { db } from '@/services/firebase'
+import { doc, updateDoc } from 'firebase/firestore'
+
+export default {
+  name: 'Profile',
+  components: { Modal },
+  setup() {
+    const authStore = useAuthStore()
+    const user = computed(() => authStore.user)
+    const showEdit = ref(false)
+    const editForm = ref({ name: user.value?.displayName || user.value?.name || '' })
+
+    const saveProfile = async () => {
+      if (!editForm.value.name) return
+      // Actualiza el displayName en Firebase Auth
+      await updateProfile(user.value, { displayName: editForm.value.name })
+      // Actualiza el nombre en la colección users
+      await updateDoc(doc(db, 'users', user.value.uid), { name: editForm.value.name })
+      showEdit.value = false
+      window.location.reload() // Refresca para mostrar el nuevo nombre
     }
-  };
-  </script>
-  
-  <style scoped>
-  .profile-page {
-    padding: 20px;
+
+    return { user, showEdit, editForm, saveProfile }
   }
-  
-  .profile-container {
-    max-width: 600px;
-    margin: 0 auto;
-    background-color: var(--white);
-    border-radius: var(--border-radius);
-    padding: 30px;
-    box-shadow: var(--box-shadow);
-  }
-  
-  .profile-container h1 {
-    color: var(--primary-color);
-    margin-bottom: 30px;
-  }
-  
-  .profile-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .form-group label {
-    margin-bottom: 5px;
-    color: var(--text-color);
-  }
-  
-  .form-group input {
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-  }
-  
-  .form-actions {
-    margin-top: 20px;
-  }
-  
-  .btn-primary {
-    background-color: var(--primary-color);
-    color: var(--white);
-    padding: 10px 20px;
-    border: none;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition: background-color var(--transition-speed);
-  }
-  
-  .btn-primary:hover {
-    background-color: var(--primary-dark);
-  }
-  
-  .btn-primary:disabled {
-    background-color: var(--text-light);
-    cursor: not-allowed;
-  }
-  </style>
-  
+}
+</script>
+
+<style scoped>
+.profile-page {
+  max-width: 500px;
+  margin: 40px auto;
+}
+.profile-card {
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 32px;
+  text-align: center;
+}
+.profile-info p {
+  margin: 10px 0;
+  font-size: 1.1rem;
+}
+</style>
