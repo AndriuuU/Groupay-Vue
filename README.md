@@ -57,7 +57,7 @@ La aplicación está desplegada en [group-pay.netlify.app](https://group-pay.net
 - **services**: Servicios para interactuar con la API.
 - **assets**: Recursos estáticos (estilos, imágenes, etc.).
 
-
+```
 Directory structure:
 └── andriuuu-groupay-vue/
     ├── README.md
@@ -166,3 +166,4 @@ Directory structure:
             ├── Profile.vue
             ├── Register.vue
             └── Statistics.vue
+```
