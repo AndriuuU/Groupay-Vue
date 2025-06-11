@@ -1,6 +1,6 @@
 # Groupay-Vue
 
-Groupay es una aplicación web diseñada para facilitar el seguimiento y gestión de gastos compartidos entre grupos de personas. Ofrece una variedad de funcionalidades para simplificar la gestión financiera y mejorar la colaboración entre los miembros de un grupo[1].
+Groupay es una aplicación web diseñada para facilitar el seguimiento y gestión de gastos compartidos entre grupos de personas. Ofrece una variedad de funcionalidades para simplificar la gestión financiera y mejorar la colaboración entre los miembros de un grupo.
 
 ## Funcionalidades
 
@@ -11,6 +11,10 @@ Groupay es una aplicación web diseñada para facilitar el seguimiento y gestió
 - **Autenticación y Perfil de Usuario**: Gestiona tu cuenta y perfil de usuario. Los usuarios pueden iniciar sesión y acceder a sus grupos y gastos de manera segura.
 - **Interfaz Responsiva**: La aplicación está diseñada para ser accesible desde cualquier dispositivo, ya sea un ordenador, tableta o teléfono móvil.
 - **Tema Oscuro y Claro**: Personaliza la apariencia de la aplicación según tus preferencias con temas oscuro y claro.
+
+## Despliegue Público
+
+Aquí esta el repositorio: [REPOSITORIO](https://github.com/AndriuuU/Groupay-Vue).
 
 ## Instrucciones de Instalación y Uso
 
