@@ -103,7 +103,7 @@
               <div class="expense-content">
                 <div class="expense-header">
                   <strong>{{ getMemberName(payment.from) }}</strong> pagó a <strong>{{ getMemberName(payment.to)
-                    }}</strong>
+                  }}</strong>
 
                 </div>
                 <span class="expense-amount">{{ formatCurrency(payment.amount) }}</span>
@@ -142,10 +142,12 @@
       </div>
 
       <div v-if="activeTab === 'balances'" class="tab-content">
-        <GroupStatistics :expenses="expenses" :members="group.members" />
 
         <balance-list :balances="balances" :settlements="settlements" :currentUserId="currentUserId"
           :isLoading="isLoadingBalances" />
+
+
+        <GroupStatistics :expenses="expenses" :members="group.members" />
       </div>
 
 

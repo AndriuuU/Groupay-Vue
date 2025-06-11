@@ -26,6 +26,7 @@
     </div>
 
     <div v-else>
+      <!-- 
       <div class="balance-card" :class="userBalanceClass">
         <h4>Tu Balance</h4>
         <div class="balance-amount">
@@ -47,7 +48,7 @@
           </div>
         </div>
       </div>
-
+-->
       <div class="settlement-suggestions">
         <h4>Sugerencias de Pago</h4>
         <div v-if="localSettlements.length === 0" class="empty-settlements">
@@ -64,9 +65,7 @@
         </div>
       </div>
     </div>
-     <button class="add-expense-btn" @click="$emit('add-expense')">
-      <i class="fas fa-plus"></i> Añadir gasto
-    </button>
+    
   </div>
 
 </template>
