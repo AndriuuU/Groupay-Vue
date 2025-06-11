@@ -66,7 +66,7 @@ export default {
     data() {
         return {
             form: {
-                from: this.currentUserId,
+                from: this.currentUserId, // Correcto para inicializar
                 to: '',
                 amount: '',
                 date: new Date().toISOString().substr(0, 10),
@@ -92,7 +92,7 @@ export default {
             try {
                 await paymentService.createPayment({
                     groupId: this.groupId,
-                    from: this.currentUserId,
+                    from: this.form.from,
                     to: this.form.to,
                     amount: parseFloat(this.form.amount),
                     date: this.form.date,

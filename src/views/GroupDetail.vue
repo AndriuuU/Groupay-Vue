@@ -75,32 +75,30 @@
               <i class="fas fa-money-bill-wave"></i> Registrar Pago
             </button>
           </div>
+          
 
-          <div class="group-section">
-  <div v-if="isLoadingPayments" class="loading-container">
-    <div class="spinner"></div>
-    <p>Cargando pagos...</p>
-  </div>
-<div v-else-if="payments.length === 0" class="empty-state">
-            <i class="fas fa-money-bill-wave empty-icon"></i>
-            <h3>No hay pagos registrados</h3>
-            <p>Cuando un miembro pague a otro, aparecerá aquí.</p>
-          </div>
-  <div v-else>
-    <PaymentCard
-      v-for="payment in payments"
-      :key="payment.id"
-      :payment="payment"
-      :members="group.members"
-      @confirm="confirmPayment"
-      @reject="rejectPayment"
-    />
-  </div>
+            <modal v-if="showAddPaymentModal" @close="showAddPaymentModal = false">
+              <template #header>
+                <h3>Registrar Pago</h3>
+              </template>
+              <template #body>
+                <payment-form :currentUserId="String(currentUserId)" :groupId="group.id" :members="group.members"
+                  @payment-created="fetchPayments" @cancel="showAddPaymentModal = false" />
 
-</div>
-
-         
-
+              </template>
+            </modal>
+            <div v-if="isLoadingPayments" class="loading-container">
+              <div class="spinner"></div>
+              <p>Cargando pagos...</p>
+            </div>
+            <div v-else-if="payments.length === 0" class="empty-state">
+              <i class="fas fa-money-check-alt empty-icon"></i>
+              <p>No hay pagos registrados entre los miembros.</p>
+            </div>
+            <div v-else>
+              <PaymentCard v-for="payment in payments" :key="payment.id" :payment="payment" :members="group.members"
+                @confirm="confirmPayment" @reject="rejectPayment" />
+            </div>
           </div>
       </div>
 
@@ -251,7 +249,7 @@ export default {
       newMemberEmail: '',
       payments: [],
       isLoadingPayments: false,
-      
+
     };
   },
   watch: {
@@ -281,13 +279,13 @@ export default {
   },
   created() {
     this.fetchGroupData();
-    
+
 
   },
   methods: {
     async fetchPayments() {
       this.isLoadingPayments = true;
-                this.payments = await paymentService.getGroupPayments(this.group.id)
+      this.payments = await paymentService.getGroupPayments(this.group.id)
 
       try {
         // Añade este log para depurar
